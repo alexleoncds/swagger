@@ -1,0 +1,4504 @@
+openapi: 3.0.0
+info:
+  title: EDA - EPS-UDM Provisioning API
+  version: 1.6.0
+  description: >
+    This provisioning interface is responsible for orchestration of data subscriptions and
+    associated profile data in the 4G and 5G-SA domain.
+
+    EPS-UDM is comprised of three resources: Data Subscription, UDM Slice Profile and UDM Roaming Area.
+
+    * Data Subscription - This resource represents the properties that enables data services
+    in both EPS (4G) and UDM (5G-SA) domains.
+
+    The userId and the indicated service are created in one request (if not already created).
+
+    * UDM Slice Profile - This resource represents the properties that provision common slice profiles associated with UDM data subscriptions (5G-SA domain).
+
+    * UDM Roaming Area - This resource represents the properties that provision roaming areas associated with UDM subscriptions (5G-SA domain).
+servers:
+  - url: "{scheme}://{URL}:{port}/aapi/v1/eps-udm"
+    variables:
+      scheme:
+        description: EPS-UDM Subscription API
+        enum:
+          - https
+        default: https
+      URL:
+        description: EPS-UDM Subscription API
+        default: eda.ericsson.net
+      port:
+        enum:
+          - "443"
+        default: "443"
+paths:
+  /data-subscription:
+    parameters:
+      - name: userId
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/UserId"
+        description: >-
+          ueId or subId, in format \<prefix>-\<value>, example
+          msisdn-46756123123
+    get:
+      summary: Gets a Data Subscription
+      tags:
+        - Data Subscription
+      responses:
+        "200":
+          description: Data Subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSubscriptionResponse"
+        '400':
+          $ref: '#/components/responses/SubscriptionStatusCode400'
+        '401':
+          $ref: '#/components/responses/SubscriptionStatusCode401'
+        '403':
+          $ref: '#/components/responses/SubscriptionStatusCode403'
+        '404':
+          $ref: '#/components/responses/SubscriptionStatusCode404'
+        '405':
+          $ref: '#/components/responses/SubscriptionStatusCode405'
+        '409':
+          $ref: '#/components/responses/SubscriptionStatusCode409'
+        '422':
+          $ref: '#/components/responses/SubscriptionStatusCode422'
+        '500':
+          $ref: '#/components/responses/SubscriptionStatusCode500'
+        '501':
+          $ref: '#/components/responses/SubscriptionStatusCode501'
+        '502':
+          $ref: '#/components/responses/SubscriptionStatusCode502'
+        '503':
+          $ref: '#/components/responses/SubscriptionStatusCode503'
+        '504':
+          $ref: '#/components/responses/SubscriptionStatusCode504'
+    post:
+      summary: Creates a Data Subscription
+      tags:
+        - Data Subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataSubscription"
+        required: true
+      responses:
+        "201":
+          description: Successful case. The resource has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSubscriptionResponse"
+        '400':
+          $ref: '#/components/responses/SubscriptionStatusCode400'
+        '401':
+          $ref: '#/components/responses/SubscriptionStatusCode401'
+        '403':
+          $ref: '#/components/responses/SubscriptionStatusCode403'
+        '404':
+          $ref: '#/components/responses/SubscriptionStatusCode404'
+        '405':
+          $ref: '#/components/responses/SubscriptionStatusCode405'
+        '409':
+          $ref: '#/components/responses/SubscriptionStatusCode409'
+        '422':
+          $ref: '#/components/responses/SubscriptionStatusCode422'
+        '500':
+          $ref: '#/components/responses/SubscriptionStatusCode500'
+        '501':
+          $ref: '#/components/responses/SubscriptionStatusCode501'
+        '502':
+          $ref: '#/components/responses/SubscriptionStatusCode502'
+        '503':
+          $ref: '#/components/responses/SubscriptionStatusCode503'
+        '504':
+          $ref: '#/components/responses/SubscriptionStatusCode504'
+    patch:
+      summary: Modifies a Data Subscription
+      tags:
+        - Data Subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataSubscriptionPatch"
+            examples:
+              patch-add-udm-subscription-to-data-subscription:
+                value:
+                  udm:
+                    ueIdList:
+                      - idType: "imsi"
+                        idValue: "240600107190000"
+                    udmSliceProfileId:
+                      id: "udmSliceProfile1"
+              patch-update-udm-subscription-add-ueIds-to-existing-udm-subscription:
+                value:
+                  udm:
+                    ueIds:
+                      msisdn-46107190000:
+                        ueId: "msisdn-46107190000"
+                      nai-john.doe@operator.com:
+                        ueId: "nai-john.doe@operator.com"
+              patch-update-udm-subscription-remove-ueId-from-existing-udm-subscription:
+                value:
+                  udm:
+                    ueIds:
+                      nai-john.doe@operator.com: null
+        required: true
+      responses:
+        "200":
+          description: Successful case. The resource has been successfully modified.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataSubscriptionResponse"
+        '204':
+          description: Successful case, no changes were made.
+        '400':
+          $ref: '#/components/responses/SubscriptionStatusCode400'
+        '401':
+          $ref: '#/components/responses/SubscriptionStatusCode401'
+        '403':
+          $ref: '#/components/responses/SubscriptionStatusCode403'
+        '404':
+          $ref: '#/components/responses/SubscriptionStatusCode404'
+        '405':
+          $ref: '#/components/responses/SubscriptionStatusCode405'
+        '409':
+          $ref: '#/components/responses/SubscriptionStatusCode409'
+        '422':
+          $ref: '#/components/responses/SubscriptionStatusCode422'
+        '500':
+          $ref: '#/components/responses/SubscriptionStatusCode500'
+        '501':
+          $ref: '#/components/responses/SubscriptionStatusCode501'
+        '502':
+          $ref: '#/components/responses/SubscriptionStatusCode502'
+        '503':
+          $ref: '#/components/responses/SubscriptionStatusCode503'
+        '504':
+          $ref: '#/components/responses/SubscriptionStatusCode504'
+    delete:
+      summary: Deletes a Data Subscription
+      tags:
+        - Data Subscription
+      responses:
+        "204":
+          description: Successful case. The resource has been successfully deleted.
+        '400':
+          $ref: '#/components/responses/SubscriptionStatusCode400'
+        '401':
+          $ref: '#/components/responses/SubscriptionStatusCode401'
+        '403':
+          $ref: '#/components/responses/SubscriptionStatusCode403'
+        '404':
+          $ref: '#/components/responses/SubscriptionStatusCode404'
+        '405':
+          $ref: '#/components/responses/SubscriptionStatusCode405'
+        '409':
+          $ref: '#/components/responses/SubscriptionStatusCode409'
+        '422':
+          $ref: '#/components/responses/SubscriptionStatusCode422'
+        '500':
+          $ref: '#/components/responses/SubscriptionStatusCode500'
+        '501':
+          $ref: '#/components/responses/SubscriptionStatusCode501'
+        '502':
+          $ref: '#/components/responses/SubscriptionStatusCode502'
+        '503':
+          $ref: '#/components/responses/SubscriptionStatusCode503'
+        '504':
+          $ref: '#/components/responses/SubscriptionStatusCode504'
+  /udm-slice-profile:
+    parameters:
+      - name: udmSliceProfileId
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/UdmSliceProfileId"
+    get:
+      summary: Gets a UDM Slice profile
+      tags:
+        - UDM Profile - "Slice Profile"
+      responses:
+        "200":
+          description: UDM Slice Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UdmSliceProfile"
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+    post:
+      summary: Creates a UDM Slice Profile
+      tags:
+        - UDM Profile - "Slice Profile"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UdmSliceProfile"
+            examples:
+              udmSliceProfile1:
+                value:
+                  udmSliceProfileId: udmSliceProfile1
+                  plmnIdSets:
+                    - plmnIdSetIdentifier: Default
+                      nssai:
+                        defaultSingleNssais:
+                          - nssai:
+                              sst: 0
+                              sd: AFAFAF
+                            dnnListId: Default
+                        singleNssais:
+                          - nssai:
+                              sst: 1
+                              sd: A0A0A0
+                            dnnListId: Default
+                      dnnList:
+                        - dnnListId: Default
+                          dnnDataList:
+                            - dnn: mbb.operator.com
+                              defaultDnnIndicator: true
+                              lboRoamingAllowed: true
+                              iwkEpsInd: true
+                              pduSessionTypes:
+                                defaultSessionType: IPV4
+                                allowedSessionTypes:
+                                  - IPV4V6
+                              sscModes:
+                                defaultSscMode: SSC_MODE_1
+                                allowedSscModes:
+                                  - SSC_MODE_2
+                                  - SSC_MODE_3
+                              qos5gProfile:
+                                qi5: 0
+                                arp:
+                                  priorityLevel: 1
+                                  preemptCap: NOT_PREEMPT
+                                  preemptVuln: NOT_PREEMPTABLE
+                                priorityLevel: 1
+                              sessionAmbr:
+                                uplink: 100 Mbps
+                                downlink: 100 Mbps
+                              charging3gppCharacteristics: "Default"
+                              upSecurity:
+                                upIntegr: REQUIRED
+                                upConfid: REQUIRED
+                              smfList: [
+                                  "5e87365c-4415-11eb-b378-0242ac130002",
+                                  "90b1d1cf-a1be-45a1-9398-6ecbaa7fc837",
+                                  "f5881110-384a-407f-ab97-de570b15c3c3"
+                              ]
+                              sameSmfInd: true
+        required: true
+      responses:
+        "201":
+          description: Successful case. The resource has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UdmSliceProfile"
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+    patch:
+      summary: Modifies a UDM Slice Profile
+      tags:
+        - UDM Profile - "Slice Profile"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UdmSliceProfilePatch"
+        required: true
+      responses:
+        "200":
+          description: Successful case. The resource has been successfully modified.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UdmSliceProfile"
+        '204':
+          description: Successful case, no changes were made.
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+    delete:
+      summary: Deletes a UDM Slice Profile
+      tags:
+        - UDM Profile - "Slice Profile"
+      responses:
+        "204":
+          description: Successful case. The resource has been successfully deleted.
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+  /udm-roaming-area:
+    parameters:
+      - name: udmRoamingAreaId
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/UdmRoamingAreaId"
+    get:
+      summary: Gets a UDM Roaming Area
+      tags:
+        - UDM Profile - "Roaming Area"
+      responses:
+        "200":
+          description: UDM Roaming Area
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UdmRoamingArea"
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+    post:
+      summary: Creates a UDM Roaming Area
+      tags:
+        - UDM Profile - "Roaming Area"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UdmRoamingArea"
+            examples:
+              udmRoamingArea1:
+                value:
+                  udmRoamingAreaId: udmRoamingArea1
+                  areaList:
+                    - areaCodes: areaCode51
+              udmRoamingArea2:
+                value:
+                  udmRoamingAreaId: udmRoamingArea2
+                  areaList:
+                    - tacs:
+                        - "0000"
+                        - abcdef
+        required: true
+      responses:
+        "201":
+          description: Successful case. The resource has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UdmRoamingArea"
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+    patch:
+      summary: Modifies a UDM Roaming Area
+      tags:
+        - UDM Profile - "Roaming Area"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UdmRoamingAreaPatch"
+        required: true
+      responses:
+        "200":
+          description: Successful case. The resource has been successfully modified.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UdmRoamingAreaPatchResponse"
+        "204":
+          description: Successful case, no changes were made.
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+    delete:
+      summary: Deletes a UDM Roaming Area
+      tags:
+        - UDM Profile - "Roaming Area"
+      responses:
+        "204":
+          description: Successful case. The resource has been successfully deleted.
+        '400':
+          $ref: '#/components/responses/UdmStatusCode400'
+        '401':
+          $ref: '#/components/responses/UdmStatusCode401'
+        '403':
+          $ref: '#/components/responses/UdmStatusCode403'
+        '404':
+          $ref: '#/components/responses/UdmStatusCode404'
+        '405':
+          $ref: '#/components/responses/UdmStatusCode405'
+        '409':
+          $ref: '#/components/responses/UdmStatusCode409'
+        '422':
+          $ref: '#/components/responses/UdmStatusCode422'
+        '500':
+          $ref: '#/components/responses/UdmStatusCode500'
+        '501':
+          $ref: '#/components/responses/UdmStatusCode501'
+        '502':
+          $ref: '#/components/responses/UdmStatusCode502'
+        '503':
+          $ref: '#/components/responses/UdmStatusCode503'
+        '504':
+          $ref: '#/components/responses/UdmStatusCode504'
+components:
+  responses:
+    SubscriptionStatusCode400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage400'
+    SubscriptionStatusCode401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage401'
+    SubscriptionStatusCode403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage403'
+    SubscriptionStatusCode404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SubscriptionFaultMessage404'
+    SubscriptionStatusCode405:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage405'
+    SubscriptionStatusCode409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage409'
+    SubscriptionStatusCode422:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage422'
+    SubscriptionStatusCode500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SubscriptionFaultMessage500'
+    SubscriptionStatusCode501:
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage501'
+    SubscriptionStatusCode502:
+      description: Bad Gateway
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SubscriptionFaultMessage502'
+    SubscriptionStatusCode503:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage503'
+    SubscriptionStatusCode504:
+      description: Gateway Timeout
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage504'
+
+    UdmStatusCode400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage400'
+    UdmStatusCode401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage401'
+    UdmStatusCode403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage403'
+    UdmStatusCode404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UdmFaultMessage404'
+    UdmStatusCode405:
+      description: Method Not Allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage405'
+    UdmStatusCode409:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage409'
+    UdmStatusCode422:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage422'
+    UdmStatusCode500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UdmFaultMessage500'
+    UdmStatusCode501:
+      description: Not Implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage501'
+    UdmStatusCode502:
+      description: Bad Gateway
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UdmFaultMessage502'
+    UdmStatusCode503:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage503'
+    UdmStatusCode504:
+      description: Gateway Timeout
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FaultMessage504'
+
+  schemas:
+    FaultMessage400:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/2001'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+      example:
+        faultcode: 2001
+        faultreason: Format Error
+        details:
+          errorcode: Error details
+          errormessage: Error message
+          errordetails: Error details
+
+    FaultMessage401:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1004'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage403:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1005'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    SubscriptionFaultMessage404:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1001'
+        - $ref: '#/components/schemas/1002'
+        - $ref: '#/components/schemas/1003'
+        - $ref: '#/components/schemas/12001'
+        - $ref: '#/components/schemas/12002'
+        - $ref: '#/components/schemas/13001'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    UdmFaultMessage404:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1001'
+        - $ref: '#/components/schemas/1002'
+        - $ref: '#/components/schemas/1003'
+        - $ref: '#/components/schemas/12017'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage405:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1007'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage409:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/14001'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage422:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1006'
+        - $ref: '#/components/schemas/2002'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    SubscriptionFaultMessage500:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1010'
+        - $ref: '#/components/schemas/1013'
+        - $ref: '#/components/schemas/1097'
+        - $ref: '#/components/schemas/1099'
+        - $ref: '#/components/schemas/1102'
+        - $ref: '#/components/schemas/1103'
+        - $ref: '#/components/schemas/1104'
+        - $ref: '#/components/schemas/1105'
+        - $ref: '#/components/schemas/12013'
+        - $ref: '#/components/schemas/12014'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    UdmFaultMessage500:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1010'
+        - $ref: '#/components/schemas/1013'
+        - $ref: '#/components/schemas/1097'
+        - $ref: '#/components/schemas/1099'
+        - $ref: '#/components/schemas/1102'
+        - $ref: '#/components/schemas/1103'
+        - $ref: '#/components/schemas/1104'
+        - $ref: '#/components/schemas/1105'
+        - $ref: '#/components/schemas/12013'
+        - $ref: '#/components/schemas/12014'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage501:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1011'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    SubscriptionFaultMessage502:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1095'
+        - $ref: '#/components/schemas/1101'
+        - $ref: '#/components/schemas/2004'
+        - $ref: '#/components/schemas/2005'
+        - $ref: '#/components/schemas/12006'
+        - $ref: '#/components/schemas/12016'
+        - $ref: '#/components/schemas/12501'
+        - $ref: '#/components/schemas/12502'
+        - $ref: '#/components/schemas/12601'
+        - $ref: '#/components/schemas/12602'
+        - $ref: '#/components/schemas/12603'
+        - $ref: '#/components/schemas/13002'
+        - $ref: '#/components/schemas/13003'
+        - $ref: '#/components/schemas/13006'
+        - $ref: '#/components/schemas/13009'
+        - $ref: '#/components/schemas/13011'
+        - $ref: '#/components/schemas/13100'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    UdmFaultMessage502:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1095'
+        - $ref: '#/components/schemas/1101'
+        - $ref: '#/components/schemas/2004'
+        - $ref: '#/components/schemas/2005'
+        - $ref: '#/components/schemas/13100'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage503:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1098'
+        - $ref: '#/components/schemas/2003'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    FaultMessage504:
+      type: object
+      required:
+        - faultcode
+        - faultreason
+      oneOf:
+        - $ref: '#/components/schemas/1096'
+      properties:
+        faultcode:
+          type: integer
+        faultreason:
+          type: string
+        faultactor:
+          type: string
+        details:
+          type: object
+
+    1001:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1001
+        faultreason:
+          type: string
+          enum:
+            - "Invalid resource ID."
+    1002:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1002
+        faultreason:
+          type: string
+          enum:
+            - "Invalid XPath."
+    1003:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1003
+        faultreason:
+          type: string
+          enum:
+            - "Unrecognized namespace. No target associated."
+    1004:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1004
+        faultreason:
+          type: string
+          enum:
+            - "Access denied. Invalid principal or credentials."
+    1005:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1005
+        faultreason:
+          type: string
+          enum:
+            - "Not authorized to perform current operation on selected data view."
+    1006:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1006
+        faultreason:
+          type: string
+          enum:
+            - "Invalid parameter."
+    1007:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1007
+        faultreason:
+          type: string
+          enum:
+            - "Unsupported operation."
+    1010:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1010
+        faultreason:
+          type: string
+          enum:
+            - "Invalid sessionId."
+    1011:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1011
+        faultreason:
+          type: string
+          enum:
+            - "Target is not found."
+    1013:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1013
+        faultreason:
+          type: string
+          enum:
+            - "SessionId Syntax Error"
+    1095:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1095
+        faultreason:
+          type: string
+          enum:
+            - "Communication error while interacting with a data repository."
+    1096:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1096
+        faultreason:
+          type: string
+          enum:
+            - "Timeout expired during wait for answer from data repository."
+    1097:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1097
+        faultreason:
+          type: string
+          enum:
+            - "Failure during processing of the request."
+    1098:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1098
+        faultreason:
+          type: string
+          enum:
+            - "Could not process request due to resource limitation."
+    1099:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1099
+        faultreason:
+          type: string
+          enum:
+            - "System error."
+    1101:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1101
+        faultreason:
+          type: string
+          enum:
+            - "External error."
+    1102:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1102
+        faultreason:
+          type: string
+          enum:
+            - "Internal error."
+    1103:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1103
+        faultreason:
+          type: string
+          enum:
+            - "License error."
+    1104:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1104
+        faultreason:
+          type: string
+          enum:
+            - "Routing error."
+    1105:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 1105
+        faultreason:
+          type: string
+          enum:
+            - "Cluster Strategy error."
+    2001:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 2001
+        faultreason:
+          type: string
+          enum:
+            - "FORMAT ERROR"
+    2002:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 2002
+        faultreason:
+          type: string
+          enum:
+            - "UNREASONABLE VALUE"
+    2003:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 2003
+        faultreason:
+          type: string
+          enum:
+            - "Function busy"
+    2004:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 2004
+        faultreason:
+          type: string
+          enum:
+            - "DATABASE UPDATE ERROR"
+    2005:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 2005
+        faultreason:
+          type: string
+          enum:
+            - "Storage IO failure"
+    12001:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12001
+        faultreason:
+          type: string
+          enum:
+            - "Identifier not defined"
+    12002:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12002
+        faultreason:
+          type: string
+          enum:
+            - "Subscriber not defined"
+    12006:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12006
+        faultreason:
+          type: string
+          enum:
+            - "DATABASE LOCKED FOR BACKUP"
+    12013:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12013
+        faultreason:
+          type: string
+          enum:
+            - "OPERATION FAILED, ROLLBACK HAS BEEN PERFORMED SUCCESSFULLY"
+    12014:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12014
+        faultreason:
+          type: string
+          enum:
+            - "OPERATION FAILED, ROLLBACK WAS UNSUCCESSFUL"
+    12016:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12016
+        faultreason:
+          type: string
+          enum:
+            - "CONCURRENT SUBSCRIBER MODIFICATION NOT ALLOWED"
+    12017:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12017
+        faultreason:
+          type: string
+          enum:
+            - "Profile not defined"
+    12501:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12501
+        faultreason:
+          type: string
+          enum:
+            - "MIGRATION ONGOING"
+    12502:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12502
+        faultreason:
+          type: string
+          enum:
+            - "MIGRATION FAILED"
+    12601:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12601
+        faultreason:
+          type: string
+          enum:
+            - "MIGRATION REJECTED"
+    12602:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12602
+        faultreason:
+          type: string
+          enum:
+            - "SPLIT PROFILE DETECTED"
+    12603:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 12603
+        faultreason:
+          type: string
+          enum:
+            - "SUBSCRIBER IDENTITY MISMATCH"
+    13001:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13001
+        faultreason:
+          type: string
+          enum:
+            - "SERVICE NOT DEFINED"
+    13002:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13002
+        faultreason:
+          type: string
+          enum:
+            - "SERVICE ALREADY DEFINED"
+    13003:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13003
+        faultreason:
+          type: string
+          enum:
+            - "IDENTITY MISMATCH"
+    13006:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13006
+        faultreason:
+          type: string
+          enum:
+            - "INCONSISTENT DATA IN CUDB"
+    13009:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13009
+        faultreason:
+          type: string
+          enum:
+            - "SUBSCRIBER JOIN TO ANOTHER COMMON MSISDN"
+    13011:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13011
+        faultreason:
+          type: string
+          enum:
+            - "MTC FUNCTIONALITY NOT DEFINED FOR SUBSCRIBER"
+    13100:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 13100
+        faultreason:
+          type: string
+          enum:
+            - "UDM FAULT"
+    14001:
+      type: object
+      properties:
+        faultcode:
+          type: integer
+          enum:
+            - 14001
+        faultreason:
+          type: string
+          enum:
+            - "CONSTRAINT VIOLATION"
+
+    UserId:
+      type: string
+    DataSubscription:
+      description: Contains the Data Subscription data
+      type: object
+      properties:
+        udm:
+          $ref: "#/components/schemas/Udm-data"
+        eps:
+          $ref: "#/components/schemas/Eps-data"
+        common:
+          $ref: "#/components/schemas/Common-data"
+    DataSubscriptionPatch:
+      description: Contains the Data Subscription data
+      type: object
+      properties:
+        udm:
+          anyOf:
+            - $ref: "#/components/schemas/Udm-data"
+              description: Used when defining UDM data for the first time (must include list of associated network identifier(s) as "ueIdList" property)
+            - $ref: "#/components/schemas/Udm-data-patch"
+              description: Used when updating existing UDM data (associated network identifiers may be added/removed by "ueIds" dictionary property)
+        eps:
+          anyOf:
+            - $ref: "#/components/schemas/Eps-data-patch"
+              description: Used when updating existing EPS data ("imsi" provided as key to additionalProperty which contains EPS data) [deprecated]
+            - $ref: "#/components/schemas/Eps-data-patch-no-imsi"
+              description: Used when updating existing EPS data (shall not include network identifier "imsi" as property)
+            - $ref: "#/components/schemas/Eps-data"
+              description: Used when defining EPS data for the first time (must include network identifier "imsi" as property)
+        common:
+          $ref: "#/components/schemas/Common-data"
+    DataSubscriptionResponse:
+      description: Contains the Data Subscription Response data
+      type: object
+      properties:
+        udm:
+          $ref: "#/components/schemas/Udm-data"
+        eps:
+          $ref: "#/components/schemas/Eps-response-data"
+        common:
+          $ref: "#/components/schemas/Common-data"
+    Identities:
+      description: Contains a list with ueIds
+      type: array
+      items:
+        $ref: "#/components/schemas/UeId"
+      minItems: 1
+      example:
+        - idType: msisdn
+          idValue: "46107190000"
+        - idType: imsi
+          idValue: "240600107190000"
+        - idType: nai
+          idValue: "john.doe@operator.com"
+    UeId:
+      description: Contains a ueId (traffical identity)
+      type: object
+      properties:
+        idType:
+          type: string
+          enum:
+            - msisdn
+            - imsi
+            - nai
+        idValue:
+          type: string
+      example:
+        idType: msisdn
+        idValue: "46107190000"
+    UeIdObject:
+      description: Contains an object ueId string as property (according to 3GPP definition TS 29.571)
+      type: object
+      properties:
+        ueId:
+          type: string
+          pattern: '^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|.+)$'
+    UeIdList:
+      description: Contains a list with ueIds
+      type: array
+      items:
+        $ref: "#/components/schemas/UeId"
+      minItems: 1
+      example:
+        - idType: msisdn
+          idValue: "46107190000"
+        - idType: imsi
+          idValue: "240600107190000"
+        - idType: nai
+          idValue: "john.doe@operator.com"
+    UeIdMap:
+      description: Contains a dictionary of ueIds based UeId as key/identifier
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/UeIdObject"
+        nullable: true
+      example:
+        ueIds:
+          msisdn-46107190000:
+            ueId: "msisdn-46107190000"
+          imsi-240600107190000:
+            ueId: "imsi-240600107190000"
+    Udm-data:
+      description: Contains 5G subscription data
+      type: object
+      nullable: true
+      required:
+        - ueIdList
+        - udmSliceProfileId
+      properties:
+        ueIdList:
+          $ref: "#/components/schemas/UeIdList"
+        ueIds:
+          not:
+            {}
+        subscribedUeAmbr:
+          $ref: "#/components/schemas/Ambr"
+        ratRestrictions:
+          description: List of RAT Types that are restricted in 5GC and EPC
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/RatType"
+          minItems: 0
+        forbiddenAreas:
+          description: List of forbidden areas in 5GS. refClass must be of type udmRoamingArea. Currently only support for 1 element
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/UdmRoamingAreaReference"
+          maxItems: 1
+        serviceAreaRestriction:
+          description: Subscribed Service Area Restriction
+          type: object
+          nullable: true
+          properties:
+            restrictionType:
+              $ref: "#/components/schemas/RestrictionType"
+            areas:
+              description: >-
+                refClass must be of type udmRoamingArea. Currently only support for 1 element
+              type: array
+              nullable: true
+              items:
+                $ref: "#/components/schemas/UdmRoamingAreaReference"
+            maxNumOfTAs:
+              $ref: "#/components/schemas/Uinteger"
+        coreNetworkTypeRestrictions:
+          description: List of Core Network Types that are restricted. The use of the value "5GC" is deprecated on Nudm and shall be discarded by the receiving AMF
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/CoreNetworkType"
+          minItems: 0
+        mpsPriority:
+          description: Indicates whether UE is subscribed to multimedia priority service
+          type: boolean
+          nullable: true
+        mcsPriority:
+          description: Indicates whether UE is subscribed to mission critical service
+          type: boolean
+          nullable: true
+        micoAllowed:
+          description: Indicates whether the UE subscription allows MICO mode
+          type: boolean
+          nullable: true
+        udmSliceProfileId:
+          $ref: "#/components/schemas/UdmSliceProfileReference"
+        udmSliceData:
+          description: individual NSSAI and DNN data for subscription
+          type: object
+          nullable: true
+          properties:
+            plmnIdSets:
+              type: array
+              items:
+                $ref: "#/components/schemas/PlmnIdSetsIndividual"
+        staticIpAddress:
+          type: object
+          nullable: true
+          properties:
+            nssaiDnnIpLists:
+              $ref: "#/components/schemas/NssaiDnnIpList"
+    Udm-data-patch:
+      description: Contains 5G subscription data
+      type: object
+      nullable: true
+      properties:
+        ueIds:
+          $ref: "#/components/schemas/UeIdMap"
+        ueIdList:
+          not:
+            {}
+        subscribedUeAmbr:
+          $ref: "#/components/schemas/Ambr"
+        ratRestrictions:
+          description: List of RAT Types that are restricted in 5GC and EPC
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/RatType"
+        forbiddenAreas:
+          description: List of forbidden areas in 5GS. refClass must be of type udmRoamingArea. LA scope is only 1 element
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/UdmRoamingAreaReference"
+          maxItems: 1
+        serviceAreaRestriction:
+          description: Subscribed Service Area Restriction
+          type: object
+          nullable: true
+          properties:
+            restrictionType:
+              $ref: "#/components/schemas/RestrictionType"
+            areas:
+              description: >-
+                refClass must be of type udmRoamingArea. LA scope is only 1
+                element
+              type: array
+              nullable: true
+              items:
+                $ref: "#/components/schemas/UdmRoamingAreaReference"
+            maxNumOfTAs:
+              $ref: "#/components/schemas/Uinteger"
+        coreNetworkTypeRestrictions:
+          description: List of Core Network Types that are restricted. The use of the value "5GC" is deprecated on Nudm and shall be discarded by the receiving AMF
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/CoreNetworkType"
+          minItems: 0
+        mpsPriority:
+          description: Indicates whether UE is subscribed to multimedia priority service
+          type: boolean
+          nullable: true
+        mcsPriority:
+          description: Indicates whether UE is subscribed to mission critical service
+          type: boolean
+          nullable: true
+        micoAllowed:
+          description: Indicates whether the UE subscription allows MICO mode
+          type: boolean
+          nullable: true
+        udmSliceProfileId:
+          $ref: "#/components/schemas/UdmSliceProfileReference"
+        udmSliceData:
+          description: individual NSSAI and DNN data for subscription
+          type: object
+          nullable: true
+          properties:
+            plmnIdSets:
+              type: array
+              items:
+                $ref: "#/components/schemas/PlmnIdSetsIndividual"
+        staticIpAddress:
+          type: object
+          nullable: true
+          properties:
+            nssaiDnnIpLists:
+              $ref: "#/components/schemas/NssaiDnnIpList"
+    Eps-data:
+      description: Contains 4G subscription data
+      type: object
+      required:
+        - imsi
+      properties:
+        imsi:
+          description: International Mobile Subscriber Identity
+          type: string
+          pattern: '^\w[0-9]{6,15}$'
+          example: "240600123456789"
+        msisdn:
+          description: Mobile Subscriber ISDN Number
+          type: string
+          pattern: '^\w[0-9]{5,15}$'
+          example: "46756123123"
+        associationId:
+          description: "Parameter is defined for future use, and is not supported."
+          type: string
+          pattern: '\w{0,32}$'
+          example: subscriber@operator.com
+        profileId:
+          $ref: "#/components/schemas/EpsProfileId"
+        odb:
+          description: >-
+            Contains the EPS Operator Determined Barring (ODB) indicator to be applied to the MultiSC.
+              - (NONE), the MultiSC has access to all EPS packet-oriented services
+              - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC
+              - (ODB-HPLMN-APN), EPS packet-oriented services are barred for the MultiSC
+              from access points that are within the home PLM network, while the MultiSC is roaming in a visited PLM network
+              - (ODB-VPLMN-APN), EPS packet-oriented services are barred for the MultiSC from access points that are within the roamed visited PLM network
+            The default value is NONE
+          type: string
+          enum:
+            - NONE
+            - ODB-ALL
+            - ODB-HPLMN-APN
+            - ODB-VPLMN-APN
+        roamingAllowed:
+          description: >-
+            Tells if the MultiSC is allowed to roam and has access to the EPS
+            service. It is only applicable if the attribute
+            epsRoamingRestriction is not defined, or if defined, is set to TRUE.
+            Default value is false.
+          type: boolean
+          example: true
+        individualApnOperatorIdentifierReplacement:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the domain
+            name to replace the APN Operator Identifier when constructing the
+            PDN Gateway (GW) FQDN upon which to perform a DNS resolution. If
+            defined, during traffic the value overrides the value in the
+            corresponding attribute of the associated configured Profile. Domain
+            name in the format of mnc<MNC>.mcc<MCC>.gprs, optionally preceding
+            by one or more labels each separated by a dot. <MNC> and <MCC> are
+            digits.
+          type: string
+          pattern: '\w{0,255}$'
+          example: mnc012.mcc345.gprs
+        individualDefaultContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, a default
+            APN configuration among the allowed ones. The allowed ones are
+            either those in the Individual Context Id list, if defined.
+            Otherwise, it is those allowed APN configurations of the associated
+            configured Profile. It is not possible for a wildcard APN to be the
+            Default Context Id for an EPS MultiServiceConsumer. If defined,
+            during traffic the value overrides the value in the corresponding
+            attribute of the associated configured Profile.
+          type: integer
+          example: 1
+        individualContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the
+            allowed APN configurations. If one, or more Individual Context
+            Identifiers are defined for the EPS MultiServiceConsumer there must
+            also be an individual Default Context Id defined that corresponds to
+            one of these allowed APNs. The entry that corresponds to the Default
+            Context Id cannot be removed. If defined, during traffic the value
+            overrides the value in the corresponding Context Id list in the
+            associated configured Profile.
+          type: array
+          items:
+            type: integer
+          minItems: 0
+          example: [ 1, 2 ]
+        individualSubscribedChargingCharacteristic:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer the
+            subscribed charging profile assigned to the subscriber. If defined,
+            during traffic the value overrides the value in the corresponding
+            attribute of the associated configured Profile.
+          type: integer
+          example: 1
+        individualAmbrMaximalUplinkIpFlow:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+            IP-CAN session level QoS parameter and it indicates the maximum
+            requested bandwidth in bits per second for an uplink IP flow. If
+            defined, during traffic the value overrides the value in the
+            corresponding attribute of the associated configured Profile.
+          type: integer
+          example: 1
+        individualAmbrMaximalDownlinkIpFlow:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+            IP-CAN session level QoS parameter and it indicates the maximum
+            requested bandwidth in bits per second for a downlink IP flow. If
+            defined, during traffic the value overrides the value in the
+            corresponding attribute of the associated configured Profile.
+          type: integer
+          example: 1
+        individualMappingContextId:
+          description: >-
+            This attribute specifies, individually for the EPS
+            MultiServiceConsumer, the mapping between the APN Context Ids
+            allowed for this user and an EPS Context Id used for traffic
+            purposes. This allows to map the APN Context Ids at configuration
+            level to EPS user-specific value. If it is not defined the
+            applicable value for the EPS MultiServiceConsumer during the
+            traffic, is the one set in the indContextId. If it is present, then
+            indContextId is not taken into account. Format:
+            contextId$apnContextId
+          type: array
+          items:
+            type: string
+            example: 2$4563
+        individualAdditionalDefaultContextId:
+          description: >-
+            This attribute specifies, individually for the EPS
+            MultiServiceConsumer, an additional default APN configuration among
+            the allowed ones. If not defined, the applicable value for the EPS
+            MultiServiceConsumer during traffic is the one set in the associated
+            configured Profile.
+          type: integer
+          example: 5
+        individualUserType:
+          description: >-
+            If this attribute is not provisioned, this user type depends on the
+            corresponding attribute of the associated configured profile. If
+            both of them are absent, the user is handled as epcMBB.
+          type: string
+          enum:
+            - epcMBB
+            - epcEMBB
+          example: epcMBB
+        individualAmbrMaximalUplinkIpExtended:
+          description: >-
+            This attribute specifies the extended AMBR IP-CAN session level QoS
+            parameter, and it indicates the extended maximum requested bandwidth
+            in kilobits per second for uplink IP flow for each service. This
+            attribute is applied for NR access type.
+          type: integer
+          minimum: 4294967
+          example: 4294968
+        individualAmbrMaximalDownlinkIpExtended:
+          description: >-
+            This attribute specifies the extended AMBR IP-CAN session level QoS
+            parameter, and it indicates the extended maximum requested bandwidth
+            in kilobits per second for downlink IP flow for each service. This
+            attribute is applied for NR access type.
+          type: integer
+          minimum: 4294967
+          example: 4294968
+        roamingRestriction:
+          description: >-
+            Contains information whether there are roaming restrictions for this
+            MultiSC or not. If TRUE, the attribute roamingAllowed applies; if
+            FALSE, roaming restriction is turned off for the EPS MultiSC. If not
+            defined the roaming allowed for the EPS MultiSC during traffic is
+            defined by roamingAllowed.
+          type: boolean
+          example: false
+        regionalRoamingServiceAreaId:
+          description: >-
+            This attribute indicates the Roaming Service Area assigned to the
+            EPS user for Roaming Service Restriction support. It must be
+            pointing to an existing HSS-EsmRoamingServiceAreaId configured in
+            the HSS-FE.
+          type: integer
+          minimum: 0
+          maximum: 65535
+          example: 2
+        accessRestriction:
+          description: >-
+            Specifies those accesses types restricted for the EPS MultiSC. If
+            not defined all accesses types are allowed.
+             - (E-UTRAN-DENIED), the MultiSC is not to be given E-UTRAN access
+             - (NON-3GPP-ACC-DENIED), the MultiSC is not to be given non-3GPP access
+             - (ALL-DENIED), the MultiSC is not to be given access at all.
+          type: string
+          enum:
+            - E-UTRAN-DENIED
+            - NON-3GPP-ACC-DENIED
+            - ALL-DENIED
+        extendedAccessRestriction:
+          description: >-
+            This parameter specifies those access types restricted for the EPS
+            MultiSC. If this parameter is not defined or set to 0, all access
+            types are allowed.
+             - 16 - E-UTRAN-DENIED, the MultiSC is not to be given the E-UTRAN access.
+             - 32 - Hand over to the Non-3GPP access is restricted. The rest of accesses are allowed.
+             - 64 - CIoT feature traffic is not allowed. 256 - NR as Secondary RAT Not Allowed
+             - 383 - All possible accesses are denied, no access to the MultiSC.
+          type: integer
+          minimum: 0
+          maximum: 383
+          example: 2
+        indCoreNetworkRestrictions:
+          type: integer
+          minimum: 0
+          maximum: 2
+          example: 2
+        userIpV4Address:
+          description: >-
+            Contains the static IPv4 addresses allocated to the MultiSC per APN
+            Context ID. Structured with separator "$" (ContextID$IP Address).
+            The APN Context ID must be defined for this MultiSC in
+            individualContextId / aaaIndividualContextId attribute, if
+            individualContextId / aaaIndividualContextId attribute is defined
+            for the MultiSC.
+          type: array
+          items:
+            type: string
+            pattern: >-
+              ^.*[$]((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+          example: [ "2$11.1.1.1" ]
+        userIpV6Address:
+          description: >-
+            Contains the static IPv6 addresses and IPv6 prefixes allocated to
+            the user per APN Context ID. Structured with separator "$"
+            (ContextID$IP Address). The APN Context ID must be defined for this
+            MultiSC in individualContextId / aaaIndividualContextId
+            attribute, if individualContextId / aaaIndividualContextId
+            attribute is defined for the MultiSC.
+          type: array
+          items:
+            type: string
+            pattern: >-
+              ^.*[$](([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$
+          example: [ "2$2001:db8:3:4::192.0.2.33" ]
+        tenantId:
+          description: >-
+            This attribute indicates the identifier of the Tenant Configuration
+            associated to the EPS MultiSC.
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 2
+        sessionTransferNumber:
+          description: >-
+            This parameter indicates the Session Transfer Number (STN) in
+            international number format for Single Radio Voice Call Continuity
+            (STN-SR), which is used for SRVCC call transfer to be downloaded to
+            the MME.
+          type: string
+          pattern: "[0-9]*"
+          example: 12
+        multimediaPriorityService:
+          description: >-
+            This parameter indicates whether the EPS user is subscribed to the
+            priority service in the EPC network. Values depending on the bit
+            mask:
+             - Bit 0: the MPS-CS-Priority. It subscribes the UE to the eMLPP or 1xRTT priority service in the CS domain.
+             - Bit 1: the MPS-EPS-Priority. It subscribes the UE to the priority service in the EPS domain.
+          type: integer
+          example: 1
+        zoneCodeSetId:
+          description: >-
+            This parameter indicates the zone code set assigned to the EPS user
+            for regional services supports. It must point to an existing
+            HSS-ZoneCodeSetId in the HSS-FE configuration.
+          type: integer
+          example: 22
+        commonMsisdn:
+          description: >-
+            This Common MSISDN is associated to multiple LTE subscriptions, that
+            is, to allow the provisioning of multiple subscriptions in LTE with
+            the same MSISDN.
+          type: string
+          pattern: "[0-9]*"
+          example: 12
+        aaaOdb:
+          description: >-
+            Contains the EPS Operator Determined Barring (ODB) indicator for
+            non-3GPP access to be applied to the MultiSC:
+             - (NONE), the MultiSC has access to all EPS packet-oriented services.
+             - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC.
+          type: string
+          enum:
+            - NONE
+            - ODB-ALL
+          example: NONE
+        aaaIndividualDefaultContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, a default
+            non-3GPP APN configuration among the allowed ones. The allowed ones
+            are either those in the Individual Context Id list, if defined.
+            Otherwise, it is those allowed APN configurations of the associated
+            configured Profile. It is not possible for a wildcard APN to be the
+            Default Context Id for an EPS MultiServiceConsumer. If defined,
+            during traffic the value overrides the value in the corresponding
+            attribute of the associated configured Profile.
+          type: integer
+          example: 3
+        aaaIndividualContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the
+            allowed non-3GPP APN configurations. If one, or more Individual
+            Context Identifiers are defined for the EPS MultiServiceConsumer
+            there must also be an individual Default Context Id defined that
+            corresponds to one of these allowed APNs. The entry that corresponds
+            to the Default Context Id cannot be removed. If defined, during
+            traffic the value overrides the value in the corresponding Context
+            Id list in the associated configured Profile.
+          type: array
+          items:
+            type: integer
+          example: [ 555, 666, 777 ]
+        aaaIndividualMappingContextId:
+          type: array
+          items:
+            type: string
+            example: 2$4563
+        zoneId:
+          description: >-
+            This attribute indicates the geographical area that the MultiSC
+            belongs to. If EPS is added to an already existing MultiSC, this
+            zoneid will be ignored.
+          type: integer
+          minimum: 0
+          maximum: 65535
+          example: 2
+        adminDisable:
+          type: boolean
+          example: false
+        nam:
+          description: |-
+            Network Access Mode of EPS service
+             0 = Both GPRS and non-GPRS
+             1 = Non-GPRS
+             2 = GPRS
+          type: integer
+          minimum: 0
+          maximum: 2
+          example: 1
+        aaaMIP6FeatureVector:
+          description: >-
+            This attributes indicates the authorized IP mobility capabilities of
+            the non-3GP access network from HSS to 3GPP AAA.
+          type: array
+          items:
+            type: string
+            enum:
+              - NO_CAPABILITY
+              - MIP6_INTEGRATED
+              - LOCAL_HOME_AGENT_ASSIGNMENT
+              - PMIP6_SUPPORTED
+              - IP4_HOA_SUPPORTED
+              - LOCAL_MAG_ROUTING_SUPPORTED
+              - ASSIGN_LOCAL_IP
+              - MIP4_SUPPORTED
+              - OPTIMIZED_IDLE_MODE_MOBILITY
+              - GTPv2_SUPPORTED
+          example: [ MIP6_INTEGRATED ]
+        mdtUserConsent:
+          description: >-
+            This attribute indicates whether the user has given his consent for
+            MDT activation or not.
+             0 = CONSENT_NOT_GIVEN
+             1 = CONSENT_GIVEN
+          type: integer
+          minimum: 0
+          maximum: 1
+          example: 1
+        mtc:
+          $ref: "#/components/schemas/EpsMtcObject"
+        epc5gAutoProvisioningRestriction:
+          $ref: "#/components/schemas/Eps5GEpcAutoProvisioningRestriction"
+
+    Eps-data-patch:
+      description: Contains 4G subscription data
+      type: object
+      properties:
+        imsi:
+          description: International Mobile Subscriber Identity
+          type: object
+          minProperties: 1
+          maxProperties: 1
+          additionalProperties:
+            nullable: true
+            properties:
+              msisdn:
+                description: Mobile Subscriber ISDN Number
+                type: string
+                pattern: '^\w[0-9]{5,15}$'
+                example: "46756123123"
+              associationId:
+                description: "Parameter is defined for future use, and is not supported."
+                type: string
+                pattern: '\w{0,32}$'
+                example: subscriber@operator.com
+              profileId:
+                $ref: "#/components/schemas/EpsProfileId"
+              odb:
+                description: >-
+                  Contains the EPS Operator Determined Barring (ODB) indicator to be applied to the MultiSC.
+                    - (NONE), the MultiSC has access to all EPS packet-oriented services
+                    - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC
+                    - (ODB-HPLMN-APN), EPS packet-oriented services are barred for the MultiSC
+                    from access points that are within the home PLM network, while the MultiSC is roaming in a visited PLM network
+                    - (ODB-VPLMN-APN), EPS packet-oriented services are barred for the MultiSC from access points that are within the roamed visited PLM network
+                  The default value is NONE
+                type: string
+                enum:
+                  - NONE
+                  - ODB-ALL
+                  - ODB-HPLMN-APN
+                  - ODB-VPLMN-APN
+              roamingAllowed:
+                description: >-
+                  Tells if the MultiSC is allowed to roam and has access to the EPS
+                  service. It is only applicable if the attribute
+                  epsRoamingRestriction is not defined, or if defined, is set to TRUE.
+                  Default value is false.
+                type: boolean
+                example: true
+              locationState:
+                description: >-
+                  Contains the MultiSC location state that may be set by provisioning.
+                type: string
+                enum:
+                  - UNKNOWN
+              individualApnOperatorIdentifierReplacement:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, the domain
+                  name to replace the APN Operator Identifier when constructing the
+                  PDN Gateway (GW) FQDN upon which to perform a DNS resolution. If
+                  defined, during traffic the value overrides the value in the
+                  corresponding attribute of the associated configured Profile. Domain
+                  name in the format of mnc<MNC>.mcc<MCC>.gprs, optionally preceding
+                  by one or more labels each separated by a dot. <MNC> and <MCC> are
+                  digits.
+                type: string
+                nullable: true
+                pattern: '\w{0,255}$'
+                example: mnc012.mcc345.gprs
+              individualDefaultContextId:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, a default
+                  APN configuration among the allowed ones. The allowed ones are
+                  either those in the Individual Context Id list, if defined.
+                  Otherwise, it is those allowed APN configurations of the associated
+                  configured Profile. It is not possible for a wildcard APN to be the
+                  Default Context Id for an EPS MultiServiceConsumer. If defined,
+                  during traffic the value overrides the value in the corresponding
+                  attribute of the associated configured Profile.
+                type: integer
+                nullable: true
+                example: 1
+              individualContextId:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, the
+                  allowed APN configurations. If one, or more Individual Context
+                  Identifiers are defined for the EPS MultiServiceConsumer there must
+                  also be an individual Default Context Id defined that corresponds to
+                  one of these allowed APNs. The entry that corresponds to the Default
+                  Context Id cannot be removed. If defined, during traffic the value
+                  overrides the value in the corresponding Context Id list in the
+                  associated configured Profile.
+                type: array
+                nullable: true
+                items:
+                  type: integer
+                example: [ 1, 2 ]
+              individualSubscribedChargingCharacteristic:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer the
+                  subscribed charging profile assigned to the subscriber. If defined,
+                  during traffic the value overrides the value in the corresponding
+                  attribute of the associated configured Profile.
+                type: integer
+                nullable: true
+                example: 1
+              individualAmbrMaximalUplinkIpFlow:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+                  IP-CAN session level QoS parameter and it indicates the maximum
+                  requested bandwidth in bits per second for an uplink IP flow. If
+                  defined, during traffic the value overrides the value in the
+                  corresponding attribute of the associated configured Profile.
+                type: integer
+                nullable: true
+                example: 1
+              individualAmbrMaximalDownlinkIpFlow:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+                  IP-CAN session level QoS parameter and it indicates the maximum
+                  requested bandwidth in bits per second for a downlink IP flow. If
+                  defined, during traffic the value overrides the value in the
+                  corresponding attribute of the associated configured Profile.
+                type: integer
+                nullable: true
+                example: 1
+              individualMappingContextId:
+                description: >-
+                  This attribute specifies, individually for the EPS
+                  MultiServiceConsumer, the mapping between the APN Context Ids
+                  allowed for this user and an EPS Context Id used for traffic
+                  purposes. This allows to map the APN Context Ids at configuration
+                  level to EPS user-specific value. If it is not defined the
+                  applicable value for the EPS MultiServiceConsumer during the
+                  traffic, is the one set in the indContextId. If it is present, then
+                  indContextId is not taken into account. Format:
+                  contextId$apnContextId
+                type: array
+                nullable: true
+                items:
+                  type: string
+                  example: 2$4563
+              individualAdditionalDefaultContextId:
+                description: >-
+                  This attribute specifies, individually for the EPS
+                  MultiServiceConsumer, an additional default APN configuration among
+                  the allowed ones. If not defined, the applicable value for the EPS
+                  MultiServiceConsumer during traffic is the one set in the associated
+                  configured Profile.
+                type: integer
+                nullable: true
+                example: 5
+              individualUserType:
+                description: >-
+                  If this attribute is not provisioned, this user type depends on the
+                  corresponding attribute of the associated configured profile. If
+                  both of them are absent, the user is handled as epcMBB.
+                type: string
+                enum:
+                  - epcMBB
+                  - epcEMBB
+                example: epcMBB
+              individualAmbrMaximalUplinkIpExtended:
+                description: >-
+                  This attribute specifies the extended AMBR IP-CAN session level QoS
+                  parameter, and it indicates the extended maximum requested bandwidth
+                  in kilobits per second for uplink IP flow for each service. This
+                  attribute is applied for NR access type.
+                type: integer
+                nullable: true
+                minimum: 4294967
+                example: 4294968
+              individualAmbrMaximalDownlinkIpExtended:
+                description: >-
+                  This attribute specifies the extended AMBR IP-CAN session level QoS
+                  parameter, and it indicates the extended maximum requested bandwidth
+                  in kilobits per second for downlink IP flow for each service. This
+                  attribute is applied for NR access type.
+                type: integer
+                nullable: true
+                minimum: 4294967
+                example: 4294968
+              roamingRestriction:
+                description: >-
+                  Contains information whether there are roaming restrictions for this
+                  MultiSC or not. If TRUE, the attribute roamingAllowed applies; if
+                  FALSE, roaming restriction is turned off for the EPS MultiSC. If not
+                  defined the roaming allowed for the EPS MultiSC during traffic is
+                  defined by roamingAllowed.
+                type: boolean
+                example: false
+              regionalRoamingServiceAreaId:
+                description: >-
+                  This attribute indicates the Roaming Service Area assigned to the
+                  EPS user for Roaming Service Restriction support. It must be
+                  pointing to an existing HSS-EsmRoamingServiceAreaId configured in
+                  the HSS-FE.
+                type: integer
+                nullable: true
+                minimum: 0
+                maximum: 65535
+                example: 2
+              accessRestriction:
+                description: >-
+                  Specifies those accesses types restricted for the EPS MultiSC. If
+                  not defined all accesses types are allowed.
+                  - (E-UTRAN-DENIED), the MultiSC is not to be given E-UTRAN access
+                  - (NON-3GPP-ACC-DENIED), the MultiSC is not to be given non-3GPP access
+                  - (ALL-DENIED), the MultiSC is not to be given access at all.
+                type: string
+                enum:
+                  - E-UTRAN-DENIED
+                  - NON-3GPP-ACC-DENIED
+                  - ALL-DENIED
+              extendedAccessRestriction:
+                description: >-
+                  This parameter specifies those access types restricted for the EPS
+                  MultiSC. If this parameter is not defined or set to 0, all access
+                  types are allowed.
+                  - 16 - E-UTRAN-DENIED, the MultiSC is not to be given the E-UTRAN access.
+                  - 32 - Hand over to the Non-3GPP access is restricted. The rest of accesses are allowed.
+                  - 64 - CIoT feature traffic is not allowed. 256 - NR as Secondary RAT Not Allowed
+                  - 383 - All possible accesses are denied, no access to the MultiSC.
+                type: integer
+                minimum: 0
+                maximum: 383
+                example: 2
+              indCoreNetworkRestrictions:
+                type: integer
+                minimum: 0
+                maximum: 2
+                example: 2
+              aaaRegistrationState:
+                description: >-
+                  Indicates the non-3GPP EPS user registration state.
+                  When epsAaaRegistrationState is set to "NOT_REGISTERED"
+                  - EpsAaaVplmnId (Visited Public Land Mobile Network Identity) is deleted
+                    by Dynamic Activation according to HSS validator response if EpsAaaVplmnId is not empty.
+                  - And epsLocationState and epsSgsnLocationState are set to "UNKNOWN",
+                    then EpsDynPdnInf is deleted by Dynamic Activation according to HSS validator response.
+                  - And Eps5GsubInf is deleted by Dynamic Activation according to HSS validator response
+                    if Eps5GsubInf is not empty.
+                type: string
+                enum:
+                  - NOT_REGISTERED
+              userIpV4Address:
+                description: >-
+                  Contains the static IPv4 addresses allocated to the MultiSC per APN
+                  Context ID. Structured with separator "$" (ContextID$IP Address).
+                  The APN Context ID must be defined for this MultiSC in
+                  individualContextId / aaaIndividualContextId attribute, if
+                  individualContextId / aaaIndividualContextId attribute is defined
+                  for the MultiSC.
+                type: array
+                nullable: true
+                items:
+                  type: string
+                  pattern: >-
+                    ^.*[$]((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+                example: [ "2$11.1.1.1" ]
+              userIpV6Address:
+                description: >-
+                  Contains the static IPv6 addresses and IPv6 prefixes allocated to
+                  the user per APN Context ID. Structured with separator "$"
+                  (ContextID$IP Address). The APN Context ID must be defined for this
+                  MultiSC in individualContextId / aaaIndividualContextId
+                  attribute, if individualContextId / aaaIndividualContextId
+                  attribute is defined for the MultiSC.
+                type: array
+                nullable: true
+                items:
+                  type: string
+                  pattern: >-
+                    ^.*[$](([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$
+                example: [ "2$2001:db8:3:4::192.0.2.33" ]
+              tenantId:
+                description: >-
+                  This attribute indicates the identifier of the Tenant Configuration
+                  associated to the EPS MultiSC.
+                type: integer
+                nullable: true
+                minimum: 1
+                maximum: 100
+                example: 2
+              sessionTransferNumber:
+                description: >-
+                  This parameter indicates the Session Transfer Number (STN) in
+                  international number format for Single Radio Voice Call Continuity
+                  (STN-SR), which is used for SRVCC call transfer to be downloaded to
+                  the MME.
+                type: string
+                nullable: true
+                pattern: "[0-9]*"
+                example: 12
+              multimediaPriorityService:
+                description: >-
+                  This parameter indicates whether the EPS user is subscribed to the
+                  priority service in the EPC network. Values depending on the bit
+                  mask:
+                  - Bit 0: the MPS-CS-Priority. It subscribes the UE to the eMLPP or 1xRTT priority service in the CS domain.
+                  - Bit 1: the MPS-EPS-Priority. It subscribes the UE to the priority service in the EPS domain.
+                type: integer
+                example: 1
+              zoneCodeSetId:
+                description: >-
+                  This parameter indicates the zone code set assigned to the EPS user
+                  for regional services supports. It must point to an existing
+                  HSS-ZoneCodeSetId in the HSS-FE configuration.
+                type: integer
+                nullable: true
+                example: 22
+              commonMsisdn:
+                description: >-
+                  This Common MSISDN is associated to multiple LTE subscriptions, that
+                  is, to allow the provisioning of multiple subscriptions in LTE with
+                  the same MSISDN.
+                type: string
+                nullable: true
+                pattern: "[0-9]*"
+                example: "12"
+              aaaOdb:
+                description: >-
+                  Contains the EPS Operator Determined Barring (ODB) indicator for
+                  non-3GPP access to be applied to the MultiSC:
+                  - (NONE), the MultiSC has access to all EPS packet-oriented services.
+                  - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC.
+                type: string
+                nullable: true
+                enum:
+                  - NONE
+                  - ODB-ALL
+                example: NONE
+              aaaIndividualDefaultContextId:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, a default
+                  non-3GPP APN configuration among the allowed ones. The allowed ones
+                  are either those in the Individual Context Id list, if defined.
+                  Otherwise, it is those allowed APN configurations of the associated
+                  configured Profile. It is not possible for a wildcard APN to be the
+                  Default Context Id for an EPS MultiServiceConsumer. If defined,
+                  during traffic the value overrides the value in the corresponding
+                  attribute of the associated configured Profile.
+                type: integer
+                nullable: true
+                example: 3
+              aaaIndividualContextId:
+                description: >-
+                  Specifies, individually for the EPS MultiServiceConsumer, the
+                  allowed non-3GPP APN configurations. If one, or more Individual
+                  Context Identifiers are defined for the EPS MultiServiceConsumer
+                  there must also be an individual Default Context Id defined that
+                  corresponds to one of these allowed APNs. The entry that corresponds
+                  to the Default Context Id cannot be removed. If defined, during
+                  traffic the value overrides the value in the corresponding Context
+                  Id list in the associated configured Profile.
+                type: array
+                nullable: true
+                items:
+                  type: integer
+                example: [ 555, 666, 777 ]
+              aaaIndividualMappingContextId:
+                type: array
+                nullable: true
+                items:
+                  type: string
+                  example: 2$4563
+              zoneId:
+                description: >-
+                  This attribute indicates the geographical area that the MultiSC
+                  belongs to. If EPS is added to an already existing MultiSC, this
+                  zoneid will be ignored.
+                type: integer
+                minimum: 0
+                maximum: 65535
+                example: 2
+              adminDisable:
+                type: boolean
+                example: false
+              nam:
+                description: |-
+                  Network Access Mode of EPS service
+                  0 = Both GPRS and non-GPRS
+                  1 = Non-GPRS
+                  2 = GPRS
+                type: integer
+                nullable: true
+                minimum: 0
+                maximum: 2
+                example: 1
+              aaaMIP6FeatureVector:
+                description: >-
+                  This attributes indicates the authorized IP mobility capabilities of
+                  the non-3GP access network from HSS to 3GPP AAA.
+                type: array
+                nullable: true
+                items:
+                  type: string
+                  enum:
+                    - NO_CAPABILITY
+                    - MIP6_INTEGRATED
+                    - LOCAL_HOME_AGENT_ASSIGNMENT
+                    - PMIP6_SUPPORTED
+                    - IP4_HOA_SUPPORTED
+                    - LOCAL_MAG_ROUTING_SUPPORTED
+                    - ASSIGN_LOCAL_IP
+                    - MIP4_SUPPORTED
+                    - OPTIMIZED_IDLE_MODE_MOBILITY
+                    - GTPv2_SUPPORTED
+                example: [ MIP6_INTEGRATED ]
+              mdtUserConsent:
+                description: >-
+                  This attribute indicates whether the user has given his consent for
+                  MDT activation or not.
+                  0 = CONSENT_NOT_GIVEN
+                  1 = CONSENT_GIVEN
+                type: integer
+                minimum: 0
+                maximum: 1
+                example: 1
+              reattachRequired:
+                description: >-
+                  This attribute indicates whether to include Remote Reattach indicator
+                  in notification data if it is sent for HSS-FE for NeType EPS.
+                type: boolean
+              sgsnLocationState:
+                description: >-
+                  Contains the MultiSC SGSN location state.
+                  When this attribute is set to "UNKNOWN":
+                  - And epsLocationState is set to "UNKNOWN",
+                    and epsAaaRegistrationState is set to "NOT_REGISTERED",
+                    then EpsDynPdnInf is deleted by Dynamic Activation according to HSS validator response.
+                  - EpsSgsnAddr, EpsSgsnRealm, EpsSgsnVplmnId, EpsSgsnNumber are deleted by Dynamic Activation according to HSS validator response.
+              mtc:
+                $ref: "#/components/schemas/EpsMtcObject"
+              epc5gAutoProvisioningRestriction:
+                $ref: "#/components/schemas/Eps5GEpcAutoProvisioningRestriction"
+
+    Eps-data-patch-no-imsi:
+      description: Contains 4G subscription data
+      type: object
+      nullable: true
+      properties:
+        msisdn:
+          description: Mobile Subscriber ISDN Number
+          type: string
+          pattern: '^\w[0-9]{5,15}$'
+          example: "46756123123"
+        associationId:
+          description: "Parameter is defined for future use, and is not supported."
+          type: string
+          pattern: '\w{0,32}$'
+          example: subscriber@operator.com
+        profileId:
+          $ref: "#/components/schemas/EpsProfileId"
+        odb:
+          description: >-
+            Contains the EPS Operator Determined Barring (ODB) indicator to be applied to the MultiSC.
+              - (NONE), the MultiSC has access to all EPS packet-oriented services
+              - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC
+              - (ODB-HPLMN-APN), EPS packet-oriented services are barred for the MultiSC
+              from access points that are within the home PLM network, while the MultiSC is roaming in a visited PLM network
+              - (ODB-VPLMN-APN), EPS packet-oriented services are barred for the MultiSC from access points that are within the roamed visited PLM network
+            The default value is NONE
+          type: string
+          enum:
+            - NONE
+            - ODB-ALL
+            - ODB-HPLMN-APN
+            - ODB-VPLMN-APN
+        roamingAllowed:
+          description: >-
+            Tells if the MultiSC is allowed to roam and has access to the EPS
+            service. It is only applicable if the attribute
+            epsRoamingRestriction is not defined, or if defined, is set to TRUE.
+            Default value is false.
+          type: boolean
+          example: true
+        locationState:
+          description: >-
+            Contains the MultiSC location state that may be set by provisioning.
+          type: string
+          enum:
+            - UNKNOWN
+        individualApnOperatorIdentifierReplacement:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the domain
+            name to replace the APN Operator Identifier when constructing the
+            PDN Gateway (GW) FQDN upon which to perform a DNS resolution. If
+            defined, during traffic the value overrides the value in the
+            corresponding attribute of the associated configured Profile. Domain
+            name in the format of mnc<MNC>.mcc<MCC>.gprs, optionally preceding
+            by one or more labels each separated by a dot. <MNC> and <MCC> are
+            digits.
+          type: string
+          nullable: true
+          pattern: '\w{0,255}$'
+          example: mnc012.mcc345.gprs
+        individualDefaultContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, a default
+            APN configuration among the allowed ones. The allowed ones are
+            either those in the Individual Context Id list, if defined.
+            Otherwise, it is those allowed APN configurations of the associated
+            configured Profile. It is not possible for a wildcard APN to be the
+            Default Context Id for an EPS MultiServiceConsumer. If defined,
+            during traffic the value overrides the value in the corresponding
+            attribute of the associated configured Profile.
+          type: integer
+          nullable: true
+          example: 1
+        individualContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the
+            allowed APN configurations. If one, or more Individual Context
+            Identifiers are defined for the EPS MultiServiceConsumer there must
+            also be an individual Default Context Id defined that corresponds to
+            one of these allowed APNs. The entry that corresponds to the Default
+            Context Id cannot be removed. If defined, during traffic the value
+            overrides the value in the corresponding Context Id list in the
+            associated configured Profile.
+          type: array
+          nullable: true
+          items:
+            type: integer
+          example: [ 1, 2 ]
+        individualSubscribedChargingCharacteristic:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer the
+            subscribed charging profile assigned to the subscriber. If defined,
+            during traffic the value overrides the value in the corresponding
+            attribute of the associated configured Profile.
+          type: integer
+          nullable: true
+          example: 1
+        individualAmbrMaximalUplinkIpFlow:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+            IP-CAN session level QoS parameter and it indicates the maximum
+            requested bandwidth in bits per second for an uplink IP flow. If
+            defined, during traffic the value overrides the value in the
+            corresponding attribute of the associated configured Profile.
+          type: integer
+          nullable: true
+          example: 1
+        individualAmbrMaximalDownlinkIpFlow:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+            IP-CAN session level QoS parameter and it indicates the maximum
+            requested bandwidth in bits per second for a downlink IP flow. If
+            defined, during traffic the value overrides the value in the
+            corresponding attribute of the associated configured Profile.
+          type: integer
+          nullable: true
+          example: 1
+        individualMappingContextId:
+          description: >-
+            This attribute specifies, individually for the EPS
+            MultiServiceConsumer, the mapping between the APN Context Ids
+            allowed for this user and an EPS Context Id used for traffic
+            purposes. This allows to map the APN Context Ids at configuration
+            level to EPS user-specific value. If it is not defined the
+            applicable value for the EPS MultiServiceConsumer during the
+            traffic, is the one set in the indContextId. If it is present, then
+            indContextId is not taken into account. Format:
+            contextId$apnContextId
+          type: array
+          nullable: true
+          items:
+            type: string
+            example: 2$4563
+        individualAdditionalDefaultContextId:
+          description: >-
+            This attribute specifies, individually for the EPS
+            MultiServiceConsumer, an additional default APN configuration among
+            the allowed ones. If not defined, the applicable value for the EPS
+            MultiServiceConsumer during traffic is the one set in the associated
+            configured Profile.
+          type: integer
+          nullable: true
+          example: 5
+        individualUserType:
+          description: >-
+            If this attribute is not provisioned, this user type depends on the
+            corresponding attribute of the associated configured profile. If
+            both of them are absent, the user is handled as epcMBB.
+          type: string
+          enum:
+            - epcMBB
+            - epcEMBB
+          example: epcMBB
+        individualAmbrMaximalUplinkIpExtended:
+          description: >-
+            This attribute specifies the extended AMBR IP-CAN session level QoS
+            parameter, and it indicates the extended maximum requested bandwidth
+            in kilobits per second for uplink IP flow for each service. This
+            attribute is applied for NR access type.
+          type: integer
+          nullable: true
+          minimum: 4294967
+          example: 4294968
+        individualAmbrMaximalDownlinkIpExtended:
+          description: >-
+            This attribute specifies the extended AMBR IP-CAN session level QoS
+            parameter, and it indicates the extended maximum requested bandwidth
+            in kilobits per second for downlink IP flow for each service. This
+            attribute is applied for NR access type.
+          type: integer
+          nullable: true
+          minimum: 4294967
+          example: 4294968
+        roamingRestriction:
+          description: >-
+            Contains information whether there are roaming restrictions for this
+            MultiSC or not. If TRUE, the attribute roamingAllowed applies; if
+            FALSE, roaming restriction is turned off for the EPS MultiSC. If not
+            defined the roaming allowed for the EPS MultiSC during traffic is
+            defined by roamingAllowed.
+          type: boolean
+          example: false
+        regionalRoamingServiceAreaId:
+          description: >-
+            This attribute indicates the Roaming Service Area assigned to the
+            EPS user for Roaming Service Restriction support. It must be
+            pointing to an existing HSS-EsmRoamingServiceAreaId configured in
+            the HSS-FE.
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 65535
+          example: 2
+        accessRestriction:
+          description: >-
+            Specifies those accesses types restricted for the EPS MultiSC. If
+            not defined all accesses types are allowed.
+            - (E-UTRAN-DENIED), the MultiSC is not to be given E-UTRAN access
+            - (NON-3GPP-ACC-DENIED), the MultiSC is not to be given non-3GPP access
+            - (ALL-DENIED), the MultiSC is not to be given access at all.
+          type: string
+          enum:
+            - E-UTRAN-DENIED
+            - NON-3GPP-ACC-DENIED
+            - ALL-DENIED
+        extendedAccessRestriction:
+          description: >-
+            This parameter specifies those access types restricted for the EPS
+            MultiSC. If this parameter is not defined or set to 0, all access
+            types are allowed.
+            - 16 - E-UTRAN-DENIED, the MultiSC is not to be given the E-UTRAN access.
+            - 32 - Hand over to the Non-3GPP access is restricted. The rest of accesses are allowed.
+            - 64 - CIoT feature traffic is not allowed. 256 - NR as Secondary RAT Not Allowed
+            - 383 - All possible accesses are denied, no access to the MultiSC.
+          type: integer
+          minimum: 0
+          maximum: 383
+          example: 2
+        indCoreNetworkRestrictions:
+          type: integer
+          minimum: 0
+          maximum: 2
+          example: 2
+        aaaRegistrationState:
+          description: >-
+            Indicates the non-3GPP EPS user registration state.
+            When epsAaaRegistrationState is set to "NOT_REGISTERED"
+            - EpsAaaVplmnId (Visited Public Land Mobile Network Identity) is deleted
+              by Dynamic Activation according to HSS validator response if EpsAaaVplmnId is not empty.
+            - And epsLocationState and epsSgsnLocationState are set to "UNKNOWN",
+              then EpsDynPdnInf is deleted by Dynamic Activation according to HSS validator response.
+            - And Eps5GsubInf is deleted by Dynamic Activation according to HSS validator response
+              if Eps5GsubInf is not empty.
+          type: string
+          enum:
+            - NOT_REGISTERED
+        userIpV4Address:
+          description: >-
+            Contains the static IPv4 addresses allocated to the MultiSC per APN
+            Context ID. Structured with separator "$" (ContextID$IP Address).
+            The APN Context ID must be defined for this MultiSC in
+            individualContextId / aaaIndividualContextId attribute, if
+            individualContextId / aaaIndividualContextId attribute is defined
+            for the MultiSC.
+          type: array
+          nullable: true
+          items:
+            type: string
+            pattern: >-
+              ^.*[$]((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+          example: [ "2$11.1.1.1" ]
+        userIpV6Address:
+          description: >-
+            Contains the static IPv6 addresses and IPv6 prefixes allocated to
+            the user per APN Context ID. Structured with separator "$"
+            (ContextID$IP Address). The APN Context ID must be defined for this
+            MultiSC in individualContextId / aaaIndividualContextId
+            attribute, if individualContextId / aaaIndividualContextId
+            attribute is defined for the MultiSC.
+          type: array
+          nullable: true
+          items:
+            type: string
+            pattern: >-
+              ^.*[$](([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$
+          example: [ "2$2001:db8:3:4::192.0.2.33" ]
+        tenantId:
+          description: >-
+            This attribute indicates the identifier of the Tenant Configuration
+            associated to the EPS MultiSC.
+          type: integer
+          nullable: true
+          minimum: 1
+          maximum: 100
+          example: 2
+        sessionTransferNumber:
+          description: >-
+            This parameter indicates the Session Transfer Number (STN) in
+            international number format for Single Radio Voice Call Continuity
+            (STN-SR), which is used for SRVCC call transfer to be downloaded to
+            the MME.
+          type: string
+          nullable: true
+          pattern: "[0-9]*"
+          example: 12
+        multimediaPriorityService:
+          description: >-
+            This parameter indicates whether the EPS user is subscribed to the
+            priority service in the EPC network. Values depending on the bit
+            mask:
+            - Bit 0: the MPS-CS-Priority. It subscribes the UE to the eMLPP or 1xRTT priority service in the CS domain.
+            - Bit 1: the MPS-EPS-Priority. It subscribes the UE to the priority service in the EPS domain.
+          type: integer
+          example: 1
+        zoneCodeSetId:
+          description: >-
+            This parameter indicates the zone code set assigned to the EPS user
+            for regional services supports. It must point to an existing
+            HSS-ZoneCodeSetId in the HSS-FE configuration.
+          type: integer
+          nullable: true
+          example: 22
+        commonMsisdn:
+          description: >-
+            This Common MSISDN is associated to multiple LTE subscriptions, that
+            is, to allow the provisioning of multiple subscriptions in LTE with
+            the same MSISDN.
+          type: string
+          nullable: true
+          pattern: "[0-9]*"
+          example: "12"
+        aaaOdb:
+          description: >-
+            Contains the EPS Operator Determined Barring (ODB) indicator for
+            non-3GPP access to be applied to the MultiSC:
+            - (NONE), the MultiSC has access to all EPS packet-oriented services.
+            - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC.
+          type: string
+          nullable: true
+          enum:
+            - NONE
+            - ODB-ALL
+          example: NONE
+        aaaIndividualDefaultContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, a default
+            non-3GPP APN configuration among the allowed ones. The allowed ones
+            are either those in the Individual Context Id list, if defined.
+            Otherwise, it is those allowed APN configurations of the associated
+            configured Profile. It is not possible for a wildcard APN to be the
+            Default Context Id for an EPS MultiServiceConsumer. If defined,
+            during traffic the value overrides the value in the corresponding
+            attribute of the associated configured Profile.
+          type: integer
+          nullable: true
+          example: 3
+        aaaIndividualContextId:
+          description: >-
+            Specifies, individually for the EPS MultiServiceConsumer, the
+            allowed non-3GPP APN configurations. If one, or more Individual
+            Context Identifiers are defined for the EPS MultiServiceConsumer
+            there must also be an individual Default Context Id defined that
+            corresponds to one of these allowed APNs. The entry that corresponds
+            to the Default Context Id cannot be removed. If defined, during
+            traffic the value overrides the value in the corresponding Context
+            Id list in the associated configured Profile.
+          type: array
+          nullable: true
+          items:
+            type: integer
+          example: [ 555, 666, 777 ]
+        aaaIndividualMappingContextId:
+          type: array
+          nullable: true
+          items:
+            type: string
+            example: 2$4563
+        zoneId:
+          description: >-
+            This attribute indicates the geographical area that the MultiSC
+            belongs to. If EPS is added to an already existing MultiSC, this
+            zoneid will be ignored.
+          type: integer
+          minimum: 0
+          maximum: 65535
+          example: 2
+        adminDisable:
+          type: boolean
+          example: false
+        nam:
+          description: |-
+            Network Access Mode of EPS service
+            0 = Both GPRS and non-GPRS
+            1 = Non-GPRS
+            2 = GPRS
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 2
+          example: 1
+        aaaMIP6FeatureVector:
+          description: >-
+            This attributes indicates the authorized IP mobility capabilities of
+            the non-3GP access network from HSS to 3GPP AAA.
+          type: array
+          nullable: true
+          items:
+            type: string
+            enum:
+              - NO_CAPABILITY
+              - MIP6_INTEGRATED
+              - LOCAL_HOME_AGENT_ASSIGNMENT
+              - PMIP6_SUPPORTED
+              - IP4_HOA_SUPPORTED
+              - LOCAL_MAG_ROUTING_SUPPORTED
+              - ASSIGN_LOCAL_IP
+              - MIP4_SUPPORTED
+              - OPTIMIZED_IDLE_MODE_MOBILITY
+              - GTPv2_SUPPORTED
+          example: [ MIP6_INTEGRATED ]
+        mdtUserConsent:
+          description: >-
+            This attribute indicates whether the user has given his consent for
+            MDT activation or not.
+            0 = CONSENT_NOT_GIVEN
+            1 = CONSENT_GIVEN
+          type: integer
+          minimum: 0
+          maximum: 1
+          example: 1
+        reattachRequired:
+          description: >-
+            This attribute indicates whether to include Remote Reattach indicator
+            in notification data if it is sent for HSS-FE for NeType EPS.
+          type: boolean
+        sgsnLocationState:
+          description: >-
+            Contains the MultiSC SGSN location state.
+            When this attribute is set to "UNKNOWN":
+            - And epsLocationState is set to "UNKNOWN",
+              and epsAaaRegistrationState is set to "NOT_REGISTERED",
+              then EpsDynPdnInf is deleted by Dynamic Activation according to HSS validator response.
+            - EpsSgsnAddr, EpsSgsnRealm, EpsSgsnVplmnId, EpsSgsnNumber are deleted by Dynamic Activation according to HSS validator response.
+        mtc:
+          $ref: "#/components/schemas/EpsMtcObject"
+        epc5gAutoProvisioningRestriction:
+          $ref: "#/components/schemas/Eps5GEpcAutoProvisioningRestriction"
+
+    Eps-response-data:
+      description: Contains 4G subscription response data
+      type: object
+      required:
+        - imsi
+        - profileId
+        - odb
+        - roamingAllowed
+      properties:
+        imsi:
+          $ref: "#/components/schemas/Imsi"
+        msisdn:
+          $ref: "#/components/schemas/Msisdn"
+        associationId:
+          $ref: "#/components/schemas/AssociationId"
+        profileId:
+          $ref: "#/components/schemas/EpsProfileId"
+        odb:
+          $ref: "#/components/schemas/EpsOdb"
+        roamingAllowed:
+          $ref: "#/components/schemas/EpsRoamingAllowed"
+        locationState:
+          $ref: "#/components/schemas/EpsLocationState"
+        individualApnOperatorIdentifierReplacement:
+          $ref: "#/components/schemas/EpsIndividualApnOperatorIdentifierReplacement"
+        individualDefaultContextId:
+          $ref: "#/components/schemas/EpsIndividualDefaultContextId"
+        individualContextId:
+          $ref: "#/components/schemas/EpsIndividualContextId"
+        individualSubscribedChargingCharacteristic:
+          $ref: "#/components/schemas/EpsIndividualSubscribedChargingCharacteristic"
+        individualAmbrMaximalUplinkIpFlow:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalUplinkIpFlow"
+        individualAmbrMaximalDownlinkIpFlow:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalDownlinkIpFlow"
+        individualMappingContextId:
+          $ref: "#/components/schemas/EpsIndividualMappingContextId"
+        individualUeUsageType:
+          $ref: "#/components/schemas/EpsIndividualUeUsageType"
+        individualRauTauTimer:
+          $ref: "#/components/schemas/EpsIndividualRauTauTimer"
+        individualAdditionalDefaultContextId:
+          $ref: "#/components/schemas/EpsIndividualAdditionalDefaultContextId"
+        individualUserType:
+          $ref: "#/components/schemas/EpsIndividualUserType"
+        individualAmbrMaximalUplinkIpExtended:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalUplinkIpExtended"
+        individualAmbrMaximalDownlinkIpExtended:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalDownlinkIpExtended"
+        mmeAddress:
+          $ref: "#/components/schemas/MmeAddress"
+        roamingRestriction:
+          $ref: "#/components/schemas/EpsRoamingRestriction"
+        regionalRoamingServiceAreaId:
+          $ref: "#/components/schemas/EpsRegionalRoamingServiceAreaId"
+        accessRestriction:
+          $ref: "#/components/schemas/EpsAccessRestriction"
+        extendedAccessRestriction:
+          $ref: "#/components/schemas/EpsExtendedAccessRestriction"
+        indCoreNetworkRestrictions:
+          $ref: "#/components/schemas/EpsIndCoreNetworkRestrictions"
+        aaaRegistrationState:
+          $ref: "#/components/schemas/EpsAaaRegistrationState"
+        aaaAddress:
+          $ref: "#/components/schemas/EpsAaaAddress"
+        aaaRealm:
+          $ref: "#/components/schemas/EpsAaaRealm"
+        dynamicPdnInformation:
+          $ref: "#/components/schemas/EpsDynamicPdnInformation"
+        ueSrVccCap:
+          $ref: "#/components/schemas/EpsUeSrVccCap"
+        userIpV4Address:
+          $ref: "#/components/schemas/EpsUserIpV4Address"
+        userIpV6Address:
+          $ref: "#/components/schemas/EpsUserIpV6Address"
+        tenantId:
+          $ref: "#/components/schemas/EpsTenantId"
+        sessionTransferNumber:
+          $ref: "#/components/schemas/EpsSessionTransferNumber"
+        multimediaPriorityService:
+          $ref: "#/components/schemas/EpsMultimediaPriorityService"
+        zoneCodeSetId:
+          $ref: "#/components/schemas/EpsZoneCodeSetId"
+        automaticProvisioned:
+          $ref: "#/components/schemas/EpsAutomaticProvisioned"
+        imeiSv:
+          $ref: "#/components/schemas/EpsImeiSv"
+        lastUpdateLocationDate:
+          $ref: "#/components/schemas/EpsLastUpdateLocationDate"
+        commonMsisdn:
+          $ref: "#/components/schemas/CommonMsisdn"
+        aaaOdb:
+          $ref: "#/components/schemas/EpsAaaOdb"
+        aaaIndividualDefaultContextId:
+          $ref: "#/components/schemas/EpsAaaIndividualDefaultContextId"
+        aaaIndividualContextId:
+          $ref: "#/components/schemas/EpsAaaIndividualContextId"
+        aaaIndividualMappingContextId:
+          $ref: "#/components/schemas/EpsAaaIndividualMappingContextId"
+        zoneId:
+          $ref: "#/components/schemas/ZoneId"
+        adminDisable:
+          $ref: "#/components/schemas/EpsAdminDisable"
+        nam:
+          $ref: "#/components/schemas/EpsNam"
+        aaaMIP6FeatureVector:
+          $ref: "#/components/schemas/EpsAaaMIP6FeatureVector"
+        mdtUserConsent:
+          $ref: "#/components/schemas/EpsMdtUserConsent"
+        mmeRealm:
+          $ref: "#/components/schemas/EpsMmeRealm"
+        sgsnAddress:
+          $ref: "#/components/schemas/EpsSgsnAddress"
+        sgsnRealm:
+          $ref: "#/components/schemas/EpsSgsnRealm"
+        sgsnLocationState:
+          $ref: "#/components/schemas/EpsSgsnLocationState"
+        sgsnLastUpdateLocationDate:
+          $ref: "#/components/schemas/EpsSgsnLastUpdateLocationDate"
+        epc5gAutoProvisioningRestriction:
+          $ref: "#/components/schemas/Eps5GEpcAutoProvisioningRestriction"
+        eps5GSubscriptionInformation:
+          $ref: "#/components/schemas/Eps5GSubscriptionInformation"
+        mtc:
+          $ref: "#/components/schemas/EpsMtcObject"
+        subs:
+          $ref: "#/components/schemas/EpsSubs"
+
+    Common-data:
+      description: Contains common data properties for both 4G and 5G-SA subscriptions (using 3GPP naming convention)
+      type: object
+      properties:
+        ueUsageType:
+          description: >-
+            This property indicates the usage characteristics of the UE that
+            enables the selection of a specific Dedicated Core Network (DCN).
+            If it is not defined, the applicable value for the DCN is the one
+            set in the associated configured Profile (EpsProfileId) in the HSS-FE.
+            This property corresponds to and is mapped to individualUeUsageType for EPS.
+          type: integer
+          minimum: 0
+          maximum: 255
+          nullable: true
+        rfspIndex:
+          description: >-
+            Specifies, individually the Subscriber Profile Identity for Radio Access Technology
+            (RAT)/Frequency Priority. If defined, during traffic the value
+            overrides the value in the corresponding attribute of the associated
+            configured Profile (EpsProfileId) in the HSS-FE.
+            This property corresponds to and is mapped to individualRatFrequencyPriorityId for EPS.
+          type: integer
+          nullable: true
+        subsRegTimer:
+          description: >-
+            This property indicates the subscribed periodic RAU/TAU timer value
+            in seconds. If not defined, the applicable value during traffic is the one set in the associated
+            configured Profile (EpsProfileId) or fallback Profile if used in the HSS-FE.
+            This property corresponds to and is mapped to individualRauTauTimer for EPS.
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+          nullable: true
+    Ambr:
+      type: object
+      nullable: true
+      properties:
+        uplink:
+          $ref: "#/components/schemas/BitRate"
+        downlink:
+          $ref: "#/components/schemas/BitRate"
+      required:
+        - uplink
+        - downlink
+    BitRate:
+      type: string
+      pattern: ^\d+(\.\d+)? (bps|Kbps|Mbps|Gbps|Tbps)$
+      example: "125 Mbps"
+    RatType:
+      anyOf:
+        - type: string
+          enum:
+            - NR
+            - EUTRA
+            - WLAN
+            - VIRTUAL
+    UdmRoamingAreaReference:
+      description: Reference to a UDM Roaming Area Profile
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+    RestrictionType:
+      anyOf:
+        - type: string
+          nullable: true
+          enum:
+            - ALLOWED_AREAS
+            - NOT_ALLOWED_AREAS
+        - type: string
+    Uinteger:
+      type: integer
+      nullable: true
+      minimum: 0
+    CoreNetworkType:
+      anyOf:
+        - type: string
+          enum:
+            - 5GC
+            - EPC
+    UdmSliceProfileReference:
+      description: Reference to a UDM SliceProfileReference
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+    NssaiDnnIpList:
+      description: An array of NssaiDnnIps
+      type: array
+      nullable: true
+      items:
+        $ref: "#/components/schemas/NssaiDnnIps"
+    NssaiDnnIps:
+      description: A list of DNNs with their IPs per nssai
+      type: object
+      required:
+        - nssai
+      properties:
+        nssai:
+          $ref: "#/components/schemas/Snssai"
+        dnnIpList:
+          type: array
+          items:
+            $ref: "#/components/schemas/DnnIp"
+    DnnIp:
+      description: IpAddresses per DNN
+      type: object
+      properties:
+        dnn:
+          description: Data Network Name
+          type: string
+        ipAddress:
+          description: min 1, max 2 with conditions
+          type: array
+          items:
+            $ref: "#/components/schemas/IpAddress"
+          example: ["2001:db8:85a3::8a2e:370:7334", "2001:db8:85a3::8a2e:370:7335"]
+      required:
+        - dnn
+        - ipAddress
+    Snssai:
+      description: the S-NSSAI is used to uniquely identify a Network Slice.
+      type: object
+      properties:
+        sst:
+          description: Slice/Service Type
+          type: integer
+          minimum: 0
+          maximum: 255
+        sd:
+          description: Slice Differentiator
+          type: string
+          pattern: "^[A-Fa-f0-9]{6}$"
+          example: "19CDE0"
+      required:
+        - sst
+
+    IpAddress:
+      type: object
+      oneOf:
+        - required:
+            - ipv4Addr
+        - required:
+            - ipv6Addr
+        - required:
+            - ipv6Prefix
+      properties:
+        ipv4Addr:
+          $ref: "#/components/schemas/Ipv4Addr"
+        ipv6Addr:
+          $ref: "#/components/schemas/Ipv6Addr"
+        ipv6Prefix:
+          $ref: "#/components/schemas/Ipv6Prefix"
+    Ipv4Addr:
+      type: string
+      pattern: >-
+        ^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$
+      example: 198.51.100.1
+    Ipv6Addr:
+      type: string
+      allOf:
+        - pattern: >-
+            ^((:|(0?|([1-9a-f][0-9a-f]{0,3}))):)((0?|([1-9a-f][0-9a-f]{0,3})):){0,6}(:|(0?|([1-9a-f][0-9a-f]{0,3})))$
+        - pattern: "^((([^:]+:){7}([^:]+))|((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?))$"
+      example: "2001:db8:85a3::8a2e:370:7334"
+    Ipv6Prefix:
+      type: string
+      allOf:
+        - pattern: >-
+            ^((:|(0?|([1-9a-f][0-9a-f]{0,3}))):)((0?|([1-9a-f][0-9a-f]{0,3})):){0,6}(:|(0?|([1-9a-f][0-9a-f]{0,3})))(\/(([0-9])|([0-9]{2})|(1[0-1][0-9])|(12[0-8])))$
+        - pattern: >-
+            ^((([^:]+:){7}([^:]+))|((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?))(\/.+)$
+      example: "2001:db8:abcd:12::0/64"
+
+    # EPS
+    EpsProfileId:
+      description: Contains reference to the EPS profile assigned to the MultiSC.
+      type: string
+      pattern: '\w{0,255}$'
+      example: Profile-2
+    EpsOdb:
+      description: >-
+        Contains the EPS Operator Determined Barring (ODB) indicator to be applied to the MultiSC.
+          - (NONE), the MultiSC has access to all EPS packet-oriented services
+          - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC
+          - (ODB-HPLMN-APN), EPS packet-oriented services are barred for the MultiSC
+          from access points that are within the home PLM network, while the MultiSC is roaming in a visited PLM network
+          - (ODB-VPLMN-APN), EPS packet-oriented services are barred for the MultiSC from access points that are within the roamed visited PLM network
+        The default value is NONE
+      type: string
+      enum:
+        - NONE
+        - ODB-ALL
+        - ODB-HPLMN-APN
+        - ODB-VPLMN-APN
+    EpsRoamingAllowed:
+      description: >-
+        Tells if the MultiSC is allowed to roam and has access to the EPS
+        service. It is only applicable if the attribute
+        epsRoamingRestriction is not defined, or if defined, is set to TRUE.
+        Default value is false.
+      type: boolean
+      example: true
+    EpsIndividualApnOperatorIdentifierReplacement:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the domain
+        name to replace the APN Operator Identifier when constructing the
+        PDN Gateway (GW) FQDN upon which to perform a DNS resolution. If
+        defined, during traffic the value overrides the value in the
+        corresponding attribute of the associated configured Profile. Domain
+        name in the format of mnc<MNC>.mcc<MCC>.gprs, optionally preceding
+        by one or more labels each separated by a dot. <MNC> and <MCC> are
+        digits.
+      type: string
+      pattern: '\w{0,255}$'
+      example: mnc012.mcc345.gprs
+    EpsIndividualDefaultContextId:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, a default
+        APN configuration among the allowed ones. The allowed ones are
+        either those in the Individual Context Id list, if defined.
+        Otherwise, it is those allowed APN configurations of the associated
+        configured Profile. It is not possible for a wildcard APN to be the
+        Default Context Id for an EPS MultiServiceConsumer. If defined,
+        during traffic the value overrides the value in the corresponding
+        attribute of the associated configured Profile.
+      type: integer
+      example: 1
+    EpsIndividualContextId:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the
+        allowed APN configurations. If one, or more Individual Context
+        Identifiers are defined for the EPS MultiServiceConsumer there must
+        also be an individual Default Context Id defined that corresponds to
+        one of these allowed APNs. The entry that corresponds to the Default
+        Context Id cannot be removed. If defined, during traffic the value
+        overrides the value in the corresponding Context Id list in the
+        associated configured Profile.
+      type: array
+      items:
+        type: integer
+      example: [ 1, 2 ]
+    EpsIndividualSubscribedChargingCharacteristic:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer the
+        subscribed charging profile assigned to the subscriber. If defined,
+        during traffic the value overrides the value in the corresponding
+        attribute of the associated configured Profile.
+      type: integer
+      example: 1
+    EpsIndividualAmbrMaximalUplinkIpFlow:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+        IP-CAN session level QoS parameter and it indicates the maximum
+        requested bandwidth in bits per second for an uplink IP flow. If
+        defined, during traffic the value overrides the value in the
+        corresponding attribute of the associated configured Profile.
+      type: integer
+      example: 1
+    EpsIndividualAmbrMaximalDownlinkIpFlow:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the AMBR
+        IP-CAN session level QoS parameter and it indicates the maximum
+        requested bandwidth in bits per second for a downlink IP flow. If
+        defined, during traffic the value overrides the value in the
+        corresponding attribute of the associated configured Profile.
+      type: integer
+      example: 1
+    EpsIndividualRatFrequencyPriorityId:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the
+        Subscriber Profile Identity for Radio Access Technology
+        (RAT)/Frequency Priority. If defined, during traffic the value
+        overrides the value in the corresponding attribute of the associated
+        configured Profile.
+      type: integer
+      example: 1
+    EpsIndividualMappingContextId:
+      description: >-
+        This attribute specifies, individually for the EPS
+        MultiServiceConsumer, the mapping between the APN Context Ids
+        allowed for this user and an EPS Context Id used for traffic
+        purposes. This allows to map the APN Context Ids at configuration
+        level to EPS user-specific value. If it is not defined the
+        applicable value for the EPS MultiServiceConsumer during the
+        traffic, is the one set in the indContextId. If it is present, then
+        indContextId is not taken into account. Format:
+        contextId$apnContextId
+      type: array
+      items:
+        type: string
+        example: 2$4563
+    EpsIndividualUeUsageType:
+      description: >-
+        This attribute indicates the usage characteristics of the UE that
+        enables the selection of a specific Dedicated Core Network (DCN).
+        If it is not defined, the applicable value for the DCN is the one
+        set in the associated configured Profile (EpsProfileId) in the FE
+      type: integer
+      minimum: 0
+      maximum: 255
+    EpsIndividualRauTauTimer:
+      description: >-
+        This attribute indicates the subscribed periodic RAU/TAU timer value
+        in seconds. If not defined, the applicable value for the EPS
+        multiServiceConsumer during traffic is the one set in the associated
+        configured Profile (profileId) or fallback Profile if used.
+      type: integer
+      minimum: 0
+      maximum: 2147483647
+      example: 11
+    EpsIndividualAdditionalDefaultContextId:
+      description: >-
+        This attribute specifies, individually for the EPS
+        MultiServiceConsumer, an additional default APN configuration among
+        the allowed ones. If not defined, the applicable value for the EPS
+        MultiServiceConsumer during traffic is the one set in the associated
+        configured Profile.
+
+
+        Not supported by cnHSS.
+      type: integer
+      example: 5
+    EpsIndividualUserType:
+      description: >-
+        If this attribute is not provisioned, this user type depends on the
+        corresponding attribute of the associated configured profile. If
+        both of them are absent, the user is handled as epcMBB.
+
+
+        Not supported by cnHSS.
+      type: string
+      enum:
+        - epcMBB
+        - epcEMBB
+      example: epcMBB
+    EpsIndividualAmbrMaximalUplinkIpExtended:
+      description: >-
+        This attribute specifies the extended AMBR IP-CAN session level QoS
+        parameter, and it indicates the extended maximum requested bandwidth
+        in kilobits per second for uplink IP flow for each service. This
+        attribute is applied for NR access type.
+      type: integer
+      minimum: 4294967
+      example: 4294968
+    EpsIndividualAmbrMaximalDownlinkIpExtended:
+      description: >-
+        This attribute specifies the extended AMBR IP-CAN session level QoS
+        parameter, and it indicates the extended maximum requested bandwidth
+        in kilobits per second for downlink IP flow for each service. This
+        attribute is applied for NR access type.
+      type: integer
+      minimum: 4294967
+      example: 4294968
+    MmeAddress:
+      description: >-
+        Contains the domain name of the MME node currently serving the MultiSC.
+      type: string
+      maxLength: 255
+    EpsLocationState:
+      description: >-
+        Contains the MultiSC location state.
+      type: string
+      enum:
+        - UNKNOWN
+        - LOCATED
+        - PURGED
+    EpsRoamingRestriction:
+      description: >-
+        Tells if the MultiSC is allowed to roam and has access to the EPS
+        service. It is only applicable if the attribute
+        epsRoamingRestriction is not defined, or if defined, is set to TRUE.
+        Default value is false.
+      type: boolean
+      example: true
+    EpsRegionalRoamingServiceAreaId:
+      description: >-
+        This attribute indicates the Roaming Service Area assigned to the
+        EPS user for Roaming Service Restriction support. It must be
+        pointing to an existing HSS-EsmRoamingServiceAreaId configured in
+        the HSS-FE.
+      type: integer
+      minimum: 0
+      maximum: 65535
+      example: 2
+    EpsAccessRestriction:
+      description: >-
+        Specifies those accesses types restricted for the EPS MultiSC. If
+        not defined all accesses types are allowed.
+          - (E-UTRAN-DENIED), the MultiSC is not to be given E-UTRAN access
+          - (NON-3GPP-ACC-DENIED), the MultiSC is not to be given non-3GPP access
+          - (ALL-DENIED), the MultiSC is not to be given access at all.
+      type: string
+      enum:
+        - E-UTRAN-DENIED
+        - NON-3GPP-ACC-DENIED
+        - ALL-DENIED
+    EpsExtendedAccessRestriction:
+      description: >-
+        This parameter specifies those access types restricted for the EPS
+        MultiSC. If this parameter is not defined or set to 0, all access
+        types are allowed.
+          - 16 - E-UTRAN-DENIED, the MultiSC is not to be given the E-UTRAN access.
+          - 32 - Hand over to the Non-3GPP access is restricted. The rest of accesses are allowed.
+          - 64 - CIoT feature traffic is not allowed. 256 - NR as Secondary RAT Not Allowed
+          - 383 - All possible accesses are denied, no access to the MultiSC.
+      type: integer
+      minimum: 0
+      maximum: 383
+      example: 2
+    EpsIndCoreNetworkRestrictions:
+      description: >-
+        Specifies Core Network access restrictions for the EPS MultiSC.
+        If this parameter is not defined or set to 0, both 2 access types are allowed.
+          - 1 – Access to EPC is not allowed. Access to 5GC is allowed.
+          - 2 – Access to 5GC is not allowed. Access to EPC is allowed.
+
+
+        Not supported by cnHSS.
+      type: integer
+      minimum: 0
+      maximum: 2
+      example: 2
+    EpsAaaRegistrationState:
+      description: >-
+        Indicates the non-3GPP EPS user registration state.
+      type: string
+      enum:
+        - NOT_REGISTERED
+        - AAA_ASSIGNED
+        - REGISTERED
+    EpsAaaAddress:
+      description: >-
+        The diameter identity of the 3GPP AAA server currently assigned to the EPS MultiSC.
+      type: string
+      maxLength: 255
+    EpsAaaRealm:
+      description: >-
+        The domain name of 3GPP AAA server currently assigned to the EPS MultiSC.
+      type: string
+      maxLength: 255
+    EpsDynamicPdnInformation:
+      description: >-
+        Shows the lists of PDN Gateways dynamically assigned to the different APNs of the MultiSC.
+      type: string
+    EpsUeSrVccCap:
+      description: >-
+        This attribute indicates if the MME currently serving the EPS user supports the SRVCC Capability.
+      type: string
+    EpsUserIpV4Address:
+      description: >-
+        Contains the static IPv4 addresses allocated to the MultiSC per APN
+        Context ID. Structured with separator "$" (ContextID$IP Address).
+        The APN Context ID must be defined for this MultiSC in
+        individualContextId / aaaIndividualContextId attribute, if
+        individualContextId / aaaIndividualContextId attribute is defined
+        for the MultiSC.
+      type: array
+      items:
+        type: string
+        pattern: >-
+          ^.*[$]((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+      example: [ "2$11.1.1.1" ]
+    EpsUserIpV6Address:
+      description: >-
+        Contains the static IPv6 addresses and IPv6 prefixes allocated to
+        the user per APN Context ID. Structured with separator "$"
+        (ContextID$IP Address). The APN Context ID must be defined for this
+        MultiSC in individualContextId / aaaIndividualContextId
+        attribute, if individualContextId / aaaIndividualContextId
+        attribute is defined for the MultiSC.
+      type: array
+      items:
+        type: string
+        pattern: >-
+          ^.*[$](([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$
+      example: [ "2$2001:db8:3:4::192.0.2.33" ]
+    EpsTenantId:
+      description: >-
+        This attribute indicates the identifier of the Tenant Configuration
+        associated to the EPS MultiSC.
+
+
+        Not supported by cnHSS.
+      type: integer
+      minimum: 1
+      maximum: 100
+      example: 2
+    EpsSessionTransferNumber:
+      description: >-
+        This parameter indicates the Session Transfer Number (STN) in
+        international number format for Single Radio Voice Call Continuity
+        (STN-SR), which is used for SRVCC call transfer to be downloaded to
+        the MME.
+
+
+        Not supported by cnHSS.
+      type: string
+      pattern: "[0-9]*"
+      example: "12"
+    EpsMultimediaPriorityService:
+      description: >-
+        This parameter indicates whether the EPS user is subscribed to the
+        priority service in the EPC network. Values depending on the bit
+        mask:
+          - Bit 0: the MPS-CS-Priority. It subscribes the UE to the eMLPP or 1xRTT priority service in the CS domain.
+          - Bit 1: the MPS-EPS-Priority. It subscribes the UE to the priority service in the EPS domain.
+      type: integer
+      example: 1
+    EpsZoneCodeSetId:
+      description: >-
+        This parameter indicates the zone code set assigned to the EPS user
+        for regional services supports. It must point to an existing
+        HSS-ZoneCodeSetId in the HSS-FE configuration.
+      type: integer
+      example: 22
+    EpsAutomaticProvisioned:
+      description: >-
+        This parameter indicates whether the EPS MultiServiceConsumer has been automatically provisioned or not. Holds value TRUE or FALSE
+      type: boolean
+    EpsImeiSv:
+      description: >-
+        This parameter indicates the International Mobile Station Equipment
+        Identity and Software Version (IMEISV) that is connecting the EPS user,
+         or the one it used to connect in the last attach to the E-UTRAN.
+      type: string
+      minLength: 0
+      maxLength: 16
+      pattern: '^\w[0-9]$'
+    EpsLastUpdateLocationDate:
+      description: >-
+        This parameter indicates the time and date when the location information
+         of the EPS MultiServiceConsumer was last updated.
+
+        Format UTC:
+
+        “YYYYMMDDThhmmssddd” where T is a literal “T”.
+      type: string
+      maxLength: 255
+    EpsAaaOdb:
+      description: >-
+        Contains the EPS Operator Determined Barring (ODB) indicator for
+        non-3GPP access to be applied to the MultiSC:
+          - (NONE), the MultiSC has access to all EPS packet-oriented services.
+          - (ODB-ALL), all EPS packet-oriented services are barred for the MultiSC.
+
+
+        Not supported by cnHSS.
+      type: string
+      enum:
+        - NONE
+        - ODB-ALL
+      example: NONE
+    EpsAaaIndividualDefaultContextId:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, a default
+        non-3GPP APN configuration among the allowed ones. The allowed ones
+        are either those in the Individual Context Id list, if defined.
+        Otherwise, it is those allowed APN configurations of the associated
+        configured Profile. It is not possible for a wildcard APN to be the
+        Default Context Id for an EPS MultiServiceConsumer. If defined,
+        during traffic the value overrides the value in the corresponding
+        attribute of the associated configured Profile.
+
+
+        Not supported by cnHSS.
+      type: integer
+      example: 3
+    EpsAaaIndividualContextId:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the
+        allowed non-3GPP APN configurations. If one, or more Individual
+        Context Identifiers are defined for the EPS MultiServiceConsumer
+        there must also be an individual Default Context Id defined that
+        corresponds to one of these allowed APNs. The entry that corresponds
+        to the Default Context Id cannot be removed. If defined, during
+        traffic the value overrides the value in the corresponding Context
+        Id list in the associated configured Profile.
+
+
+        Not supported by cnHSS.
+      type: array
+      items:
+        type: integer
+      example: [ 555, 666, 777 ]
+    EpsAaaIndividualMappingContextId:
+      description: >-
+        Specifies, individually for the EPS MultiServiceConsumer, the mapping between the non-3GPP APN Context Ids allowed for this user and an EPS Context Id used for traffic purposes. This allows to map the APN Context Ids at configuration level to EPS user-specific value.
+
+        If it is not defined the applicable value for the EPS MultiServiceConsumer during the traffic, is the one set in the EpsAaaIndContextId.
+
+        If it is present, then EpsAaaIndContextId is not taken into account.
+
+        Format: EPSContextId$APNContextId
+
+        For example, "2$4563"
+
+        Multi-value attribute structured with separator “$”
+
+        EPSContextId: uint8
+
+        APNContextId: uint32
+
+
+        Not supported by cnHSS.
+      type: array
+      items:
+        type: string
+        example: 2$4563
+    EpsAdminDisable:
+      description: >-
+        This parameter indicates whether the Administrative User Disable function is assigned to the EPS user.
+
+        When this parameter is set to true, the SGSN attributes epsSgsnLocationState, epsSgsnAddress, epsSgsnRealm, epsSgsnVplmnId and epsSgsnNumber will be cleared by the HSS validator.
+
+        Note: Not allowed to be set to "TRUE" in combination with the epsMtc functionality.
+      type: boolean
+    EpsNam:
+      description: |-
+        Network Access Mode of EPS service
+          0 = Both GPRS and non-GPRS
+          1 = Non-GPRS
+          2 = GPRS
+      type: integer
+      minimum: 0
+      maximum: 2
+      example: 1
+    EpsAaaMIP6FeatureVector:
+      description: >-
+        This attributes indicates the authorized IP mobility capabilities of
+        the non-3GP access network from HSS to 3GPP AAA.
+
+
+        Not supported by cnHSS.
+      type: array
+      items:
+        type: string
+        enum:
+          - NO_CAPABILITY
+          - MIP6_INTEGRATED
+          - LOCAL_HOME_AGENT_ASSIGNMENT
+          - PMIP6_SUPPORTED
+          - IP4_HOA_SUPPORTED
+          - LOCAL_MAG_ROUTING_SUPPORTED
+          - ASSIGN_LOCAL_IP
+          - MIP4_SUPPORTED
+          - OPTIMIZED_IDLE_MODE_MOBILITY
+          - GTPv2_SUPPORTED
+      example: [ MIP6_INTEGRATED ]
+    EpsMdtUserConsent:
+      description: >-
+        This attribute indicates whether the user has given his consent for
+        MDT activation or not.
+          0 = CONSENT_NOT_GIVEN
+          1 = CONSENT_GIVEN
+      type: integer
+      minimum: 0
+      maximum: 1
+      example: 1
+    EpsMmeRealm:
+      description: >-
+
+      type: string
+      maxLength: 255
+    EpsSgsnAddress:
+      description: >-
+        This attribute indicates the diameter identity of the Serving GPRS Support Node (S4-SGSN) currently serving the EPS.
+      type: string
+      maxLength: 255
+    EpsSgsnRealm:
+      description: >-
+        This attribute indicates the realm of the S4-SGSN that is currently giving EPS service for the Multi-Service Consumer.
+      type: string
+      maxLength: 255
+    EpsSgsnLocationState:
+      description: >-
+        This attribute indicates the S4-SGSN location state.
+      type: string
+      enum:
+        - UNKNOWN
+        - LOCATED
+        - PURGED
+    EpsSgsnLastUpdateLocationDate:
+      description: >-
+        Time and date of when the location information of the EPS Multi-Service Consumer was last updated.
+
+        Format UTC:
+
+        "YYYYMMDDThhmmssddd" where T is a literal “T”.
+      type: string
+      maxLength: 255
+    Eps5GEpcAutoProvisioningRestriction:
+      description: >-
+        Contains information whether there are 5G EPC auto provisioning restriction for this MultiSC or not.
+
+        If the value is false (by default), 5G EPC auto provisioning is allowed.
+
+        If the value is true, 5G EPC auto provisioning is not allowed.
+
+
+        Not supported by cnHSS.
+      type: boolean
+    Eps5GSubscriptionInformation:
+      description: >-
+        Used to store information about the active Nudm_SDM subscriptions requested by HSS.
+
+         The string is multi-valued structured with separator $
+
+         Format subscriptionId$expires$monitoredResource
+
+         subscriptionId: string
+
+         expires: string
+         Format UTC "YYYYMMDDThhmmssddd" where T is a literal "T"
+
+         monitoredResource: string
+         Format "UeContextInSmfData"
+
+         Not supported by cnHSS.
+      type: string
+      maxLength: 255
+      example: 1234567890$20211111T235959333$UeContextInSmfData
+
+    EpsMtcObject:
+      type: object
+      properties:
+        mtc:
+          $ref: "#/components/schemas/Mtc"
+
+    Mtc:
+      type: object
+      properties:
+        "TRUE":
+          $ref: "#/components/schemas/EpsMtc"
+
+    ExternalId:
+      description: External identifier
+      type: object
+      nullable: true
+      properties:
+        externalId:
+          type: object
+          additionalProperties:
+            properties:
+              externalId:
+                type: string
+                example: ID1@operator.com
+    mtcAllowedProviderIdList:
+      description: List of allowed MTC provider Ids that intends to configure the monitoring events
+      type: object
+      nullable: true
+      properties:
+        mtcAllowedProviderIdList:
+          type: object
+          additionalProperties:
+            properties:
+              mtcAllowedProviderIdList:
+                type: string
+                example: mtcProvidId
+
+    # EPS MTC data defintions
+    EpsMtc:
+      description: |-
+        Indicates that the EPS user has MTC functionality
+         Note:
+         Validation constraints from combining the MTC functionality with the following attributes:
+         commonMSISDN
+         tenantId
+         adminDisable (set to "TRUE")
+         nam (set to "Non-GPRS")
+
+
+        Not supported by cnHSS.
+      type: object
+      properties:
+        mtc:
+          description: Indicates that the EPS user has MTC functionality
+          type: string
+          enum:
+            - "TRUE"
+        externalId:
+          $ref: "#/components/schemas/ExternalId"
+        mtcEventProfileId:
+          description: >-
+            Used to identify the configured MONTE Profile associated to the EPS
+            multi-service consumer
+          type: string
+          nullable: true
+          pattern: '\w{0,255}$'
+          example: eventprofile1
+        niddAllow:
+          description: Indicates if the NIDD is allowed or not
+          type: boolean
+          nullable: true
+          example: true
+        mtcDeviceTriggerProfileId:
+          description: >-
+            Used to identify the configured Device Trigger Profile associated to
+            the EPS multi-service consumer.
+          type: string
+          nullable: true
+          pattern: '\w{1,255}$'
+          example: triggerprofile1
+        mtcAllowedProviderIdList:
+          $ref: "#/components/schemas/mtcAllowedProviderIdList"
+
+    # EPS Subs data defintions
+    EpsSubs:
+      description: |-
+        Contains a list of users with the same commonMsisdn, and their related information.
+      type: object
+      required:
+        - sub
+      properties:
+        sub:
+          $ref: "#/components/schemas/EpsSubList"
+    EpsSubList:
+      description: |-
+        List of EPS Subscriptions. All users have the same commonMsisdn.
+      type: array
+      items:
+        $ref: "#/components/schemas/EpsSub"
+    EpsSub:
+      description: |-
+        Each EPS Subscription's user information. All users have the same commonMsisdn.
+      type: object
+      properties:
+        imsi:
+          $ref: "#/components/schemas/Imsi"
+        msisdn:
+          $ref: "#/components/schemas/Msisdn"
+        associationId:
+          $ref: "#/components/schemas/AssociationId"
+        profileId:
+          $ref: "#/components/schemas/EpsProfileId"
+        odb:
+          $ref: "#/components/schemas/EpsOdb"
+        roamingAllowed:
+          $ref: "#/components/schemas/EpsRoamingAllowed"
+        locationState:
+          $ref: "#/components/schemas/EpsLocationState"
+        individualApnOperatorIdentifierReplacement:
+          $ref: "#/components/schemas/EpsIndividualApnOperatorIdentifierReplacement"
+        individualDefaultContextId:
+          $ref: "#/components/schemas/EpsIndividualAdditionalDefaultContextId"
+        individualContextId:
+          $ref: "#/components/schemas/EpsIndividualContextId"
+        individualSubscribedChargingCharacteristic:
+          $ref: "#/components/schemas/EpsIndividualSubscribedChargingCharacteristic"
+        individualAmbrMaximalUplinkIpFlow:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalUplinkIpFlow"
+        individualAmbrMaximalDownlinkIpFlow:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalDownlinkIpFlow"
+        individualRatFrequencyPriorityId:
+          $ref: "#/components/schemas/EpsIndividualRatFrequencyPriorityId"
+        individualMappingContextId:
+          $ref: "#/components/schemas/EpsIndividualMappingContextId"
+        individualUeUsageType:
+          $ref: "#/components/schemas/EpsIndividualUeUsageType"
+        individualRauTauTimer:
+          $ref: "#/components/schemas/EpsIndividualRauTauTimer"
+        individualAdditionalDefaultContextId:
+          $ref: "#/components/schemas/EpsIndividualAdditionalDefaultContextId"
+        individualUserType:
+          $ref: "#/components/schemas/EpsIndividualUserType"
+        individualAmbrMaximalUplinkIpExtended:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalUplinkIpExtended"
+        individualAmbrMaximalDownlinkIpExtended:
+          $ref: "#/components/schemas/EpsIndividualAmbrMaximalDownlinkIpExtended"
+        mmeAddress:
+          $ref: "#/components/schemas/MmeAddress"
+        roamingRestriction:
+          $ref: "#/components/schemas/EpsRoamingRestriction"
+        regionalRoamingServiceAreaId:
+          $ref: "#/components/schemas/EpsRegionalRoamingServiceAreaId"
+        accessRestriction:
+          $ref: "#/components/schemas/EpsAccessRestriction"
+        extendedAccessRestriction:
+          $ref: "#/components/schemas/EpsExtendedAccessRestriction"
+        indCoreNetworkRestrictions:
+          $ref: "#/components/schemas/EpsIndCoreNetworkRestrictions"
+        aaaRegistrationState:
+          $ref: "#/components/schemas/EpsAaaRegistrationState"
+        aaaAddress:
+          $ref: "#/components/schemas/EpsAaaAddress"
+        aaaRealm:
+          $ref: "#/components/schemas/EpsAaaRealm"
+        dynamicPdnInformation:
+          $ref: "#/components/schemas/EpsDynamicPdnInformation"
+        ueSrVccCap:
+          $ref: "#/components/schemas/EpsUeSrVccCap"
+        userIpV4Address:
+          $ref: "#/components/schemas/EpsUserIpV4Address"
+        userIpV6Address:
+          $ref: "#/components/schemas/EpsUserIpV6Address"
+        tenantId:
+          $ref: "#/components/schemas/EpsTenantId"
+        sessionTransferNumber:
+          $ref: "#/components/schemas/EpsSessionTransferNumber"
+        multimediaPriorityService:
+          $ref: "#/components/schemas/EpsMultimediaPriorityService"
+        zoneCodeSetId:
+          $ref: "#/components/schemas/EpsZoneCodeSetId"
+        automaticProvisioned:
+          $ref: "#/components/schemas/EpsAutomaticProvisioned"
+        imeiSv:
+          $ref: "#/components/schemas/EpsImeiSv"
+        lastUpdateLocationDate:
+          $ref: "#/components/schemas/EpsLastUpdateLocationDate"
+        commonMsisdn:
+          $ref: "#/components/schemas/CommonMsisdn"
+        aaaOdb:
+          $ref: "#/components/schemas/EpsAaaOdb"
+        aaaIndividualDefaultContextId:
+          $ref: "#/components/schemas/EpsAaaIndividualDefaultContextId"
+        aaaIndividualContextId:
+          $ref: "#/components/schemas/EpsAaaIndividualContextId"
+        aaaIndividualMappingContextId:
+          $ref: "#/components/schemas/EpsAaaIndividualMappingContextId"
+        zoneid:
+          $ref: "#/components/schemas/ZoneId"
+        adminDisable:
+          $ref: "#/components/schemas/EpsAdminDisable"
+        nam:
+          $ref: "#/components/schemas/EpsNam"
+        aaaMIP6FeatureVector:
+          $ref: "#/components/schemas/EpsAaaMIP6FeatureVector"
+        mdtUserConsent:
+          $ref: "#/components/schemas/EpsMdtUserConsent"
+        mmeRealm:
+          $ref: "#/components/schemas/EpsMmeRealm"
+        sgsnAddress:
+          $ref: "#/components/schemas/EpsSgsnAddress"
+        sgsnRealm:
+          $ref: "#/components/schemas/EpsSgsnRealm"
+        sgsnLocationState:
+          $ref: "#/components/schemas/EpsSgsnLocationState"
+        sgsnLastUpdateLocationDate:
+          $ref: "#/components/schemas/EpsSgsnLastUpdateLocationDate"
+        epc5gAutoProvisioningRestriction:
+          $ref: "#/components/schemas/Eps5GEpcAutoProvisioningRestriction"
+        eps5GSubscriptionInformation:
+          $ref: "#/components/schemas/Eps5GSubscriptionInformation"
+
+    # EPS generic definitions
+    Imsi:
+      description: International Mobile Subscriber Identity
+      type: string
+      pattern: '^\w[0-9]{6,15}$'
+      example: "240600123456789"
+    Msisdn:
+      description: Mobile Subscriber ISDN Number
+      type: string
+      pattern: '^\w[0-9]{5,15}$'
+      example: "46756123123"
+    AssociationId:
+      description: "Parameter is defined for future use, and is not supported."
+      type: string
+      pattern: '\w{0,32}$'
+      example: subscriber@operator.com
+    CommonMsisdn:
+      description: >-
+        This Common MSISDN is associated to multiple LTE subscriptions, that
+        is, to allow the provisioning of multiple subscriptions in LTE with
+        the same MSISDN.
+
+
+        Not supported by cnHSS.
+      type: string
+      pattern: "[0-9]*"
+      example: "12"
+    ZoneId:
+      description: >-
+        This attribute indicates the geographical area that the MultiSC
+        belongs to. If EPS is added to an already existing MultiSC, this
+        zoneid will be ignored.
+      type: integer
+      minimum: 0
+      maximum: 65535
+      example: 2
+
+    # UDM Profile - Slice Profiles
+    UdmSliceProfileId:
+      description: UDM Slice Profile Identifier
+      type: string
+    UdmSliceProfile:
+      description: This is a UDM slice profile. It contains a map of plmnIdSets
+      type: object
+      required:
+        - udmSliceProfileId
+      properties:
+        udmSliceProfileId:
+          $ref: "#/components/schemas/UdmSliceProfileId"
+        plmnIdSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlmnIdSets"
+    UdmSliceProfilePatch:
+      description: This is a UDM slice profile. It contains a map of plmnIdSets
+      type: object
+      properties:
+        udmSliceProfileId:
+          $ref: "#/components/schemas/UdmSliceProfileId"
+        plmnIdSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlmnIdSets"
+    PlmnIdSets:
+      description: PLMNID set of Slice data
+      type: object
+      properties:
+        plmnIdSetIdentifier:
+          description: Represents the Serving PLMN ID (<MCC><MNC>) or the Default set of data to use
+          type: string
+          # This release only supports the default set of data
+          # pattern: '^\d{5,6}$|Default'
+          enum: [ "Default" ]
+        nssai:
+          $ref: "#/components/schemas/SliceInfoNssai"
+        dnnLists:
+          description: Map of DNN Lists, where dnnListId is the key
+          type: array
+          items:
+            $ref: "#/components/schemas/DnnList"
+      required:
+        - plmnIdSetIdentifier
+        - dnnList
+    PlmnIdSetsIndividual:
+      description: PLMNID set of Slice data
+      type: object
+      properties:
+        plmnIdSetIdentifier:
+          description: Represents the Serving PLMN ID (<MCC><MNC>) or the Default set of data to use
+          type: string
+          # This release only supports the default set of data
+          # pattern: '^\d{5,6}$|Default'
+          enum: [ "Default" ]
+        nssai:
+          $ref: "#/components/schemas/SliceInfoNssai"
+        dnnLists:
+          description: Map of DNN Lists, wther dnnListId is the key
+          type: array
+          items:
+            $ref: "#/components/schemas/DnnList"
+      required:
+        - plmnIdSetIdentifier
+    SliceInfoNssai:
+      description: The Nssai for a slice
+      type: object
+      properties:
+        defaultSingleNssais:
+          type: array
+          items:
+            $ref: "#/components/schemas/NssaiDetails"
+        singleNssais:
+          type: array
+          items:
+            $ref: "#/components/schemas/NssaiDetails"
+    NssaiDetails:
+      type: object
+      required:
+          - nssai
+          - dnnListId
+      properties:
+        nssai:
+          $ref: "#/components/schemas/Snssai"
+        dnnListId:
+          description: key of the DNN list
+          type: string
+        charging3gppCharacteristics:
+          $ref: "#/components/schemas/Charging3gppCharacteristics"
+    DnnList:
+      description: The DNN list
+      type: object
+      properties:
+        dnnListId:
+          description: key of the DNN list
+          type: string
+        dnnDataList:
+          type: array
+          items:
+            $ref: "#/components/schemas/DnnData"
+    DnnData:
+      description: The DNN data
+      type: object
+      properties:
+        dnn:
+          description: Data Network Name
+          type: string
+        defaultDnnIndicator:
+          description: Indicates whether this DNN is the default DNN
+          type: boolean
+        lboRoamingAllowed:
+          description: indicates whether local breakout for the DNN is allowed when roaming
+          type: boolean
+        iwkEpsInd:
+          type: boolean
+        pduSessionTypes:
+          $ref: "#/components/schemas/PduSessionTypes"
+        sscModes:
+          $ref: "#/components/schemas/SscModes"
+        qos5gProfile:
+          $ref: "#/components/schemas/5gQosProfile"
+        sessionAmbr:
+          description: The maximum aggregated uplink and downlink bit rates to be shared across all Non-GBR QoS Flows in each PDU Session
+          $ref: "#/components/schemas/Ambr"
+        charging3gppCharacteristics:
+          $ref: "#/components/schemas/Charging3gppCharacteristics"
+        upSecurity:
+          $ref: "#/components/schemas/UpSecurity"
+        smfList:
+          description: Indicates the associated SMF(s) if the static IP address/prefix is used.
+          $ref: '#/components/schemas/SMFList'
+        sameSmfInd:
+          description: Indicates whether the same SMF for multiple PDU, sessions to the same DNN and S-NSSAI is required.
+          $ref: '#/components/schemas/SameSMFInd'
+      required:
+        - dnn
+        - pduSessionTypes
+        - sscModes
+    Charging3gppCharacteristics:
+      description: Subscribed charging characteristics data associated to the session for a data network
+      type: string
+      pattern: '^[A-Fa-f0-9]{4}$'
+      example: "123A"
+    SMFList:
+      type: array
+      items:
+        $ref: '#/components/schemas/NFInstanceId'
+      minItems: 1
+      example: [
+          '5e87365c-4415-11eb-b378-0242ac130002',
+          '90b1d1cf-a1be-45a1-9398-6ecbaa7fc837',
+          'f5881110-384a-407f-ab97-de570b15c3c3'
+      ]
+    NFInstanceId:
+      description: "from 3GPP TS29571_CommonData.yaml#/components/schemas/NfInstanceId, format is UUID version 4, defined in IETF RFC 4122"
+      type: string
+      format: uuid
+    SameSMFInd:
+      description: "Indicates whether the same SMF for multiple PDU sessions to the same DNN and S-NSSAI is required"
+      type: boolean
+      example: 'true'
+    UpSecurity:
+      description: User Plane Security Policy Enforcement information
+      type: object
+      properties:
+        upIntegr:
+          $ref: "#/components/schemas/UpIntegrity"
+        upConfid:
+          $ref: "#/components/schemas/UpConfidentiality"
+    UpIntegrity:
+          type: string
+          enum:
+            - REQUIRED
+            - PREFERRED
+            - NOT_NEEDED
+    UpConfidentiality:
+          type: string
+          enum:
+            - REQUIRED
+            - PREFERRED
+            - NOT_NEEDED
+    5gQosProfile:
+      description: 5G QoS parameters associated to the session for a data network
+      type: object
+      properties:
+        qi5:
+          description: Default 5G QoS identifier
+          type: integer
+          minimum: 0
+          maximum: 255
+        arp:
+          $ref: "#/components/schemas/Arp"
+        priorityLevel:
+          type: integer
+          minimum: 1
+          maximum: 127
+          example: "100"
+      required:
+        - qi5
+        - arp
+    Arp:
+      description: Allocation and Retention Priority
+      type: object
+      properties:
+        priorityLevel:
+          type: integer
+          minimum: 1
+          maximum: 15
+          example: "10"
+        preemptCap:
+          $ref: "#/components/schemas/PreemptionCapability"
+        preemptVuln:
+          $ref: "#/components/schemas/PreemptionVulnerability"
+      required:
+        - priorityLevel
+        - preemptCap
+        - preemptVuln
+    PreemptionCapability:
+          type: string
+          enum:
+            - NOT_PREEMPT
+            - MAY_PREEMPT
+    PreemptionVulnerability:
+          type: string
+          enum:
+            - NOT_PREEMPTABLE
+            - PREEMPTABLE
+    PduSessionTypes:
+      description: Default/allowed session types for a data network
+      type: object
+      required:
+        - defaultSessionType
+      properties:
+        defaultSessionType:
+          $ref: "#/components/schemas/PduSessionType"
+        allowedSessionTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/PduSessionType"
+          minItems: 1
+    PduSessionType:
+          type: string
+          enum:
+            - IPV4
+            - IPV6
+            - IPV4V6
+            - UNSTRUCTURED
+            - ETHERNET
+    SscModes:
+      description: Default/allowed SSC modes for a data network
+      type: object
+      required:
+        - defaultSscMode
+      properties:
+        defaultSscMode:
+          $ref: "#/components/schemas/SscMode"
+        allowedSscModes:
+          type: array
+          items:
+            $ref: "#/components/schemas/SscMode"
+          minItems: 1
+          maxItems: 2
+    SscMode:
+          type: string
+          enum:
+            - SSC_MODE_1
+            - SSC_MODE_2
+            - SSC_MODE_3
+
+    # UDM Profile - Roaming Areas
+    UdmRoamingAreas:
+      description: List of UDM Roaming Areas
+      type: array
+      items:
+        $ref: "#/components/schemas/UdmRoamingArea"
+    UdmRoamingAreaId:
+      description: UDM Roaming Area Identifier
+      type: string
+    UdmRoamingArea:
+      description: Udm Roaming Area - Currently limited to 1 Area List per UDM Roaming Area
+      type: object
+      required:
+        - udmRoamingAreaId
+      properties:
+        udmRoamingAreaId:
+          $ref: "#/components/schemas/UdmRoamingAreaId"
+        areaList:
+          type: array
+          items:
+            $ref: "#/components/schemas/AreaList"
+          maxItems: 1
+    UdmRoamingAreaPatch:
+      description: Udm Roaming Area - Currently limited to 1 Area List per UDM Roaming Area
+      type: object
+      properties:
+        udmRoamingAreaId:
+          $ref: "#/components/schemas/UdmRoamingAreaId"
+        areaList:
+          type: array
+          items:
+            $ref: "#/components/schemas/AreaList"
+          maxItems: 1
+    UdmRoamingAreaPatchResponse:
+      description: Udm Roaming Area - Currently limited to 1 Area List per UDM Roaming Area
+      type: object
+      properties:
+        udmRoamingAreaId:
+          $ref: "#/components/schemas/UdmRoamingAreaId"
+        areaList:
+          type: array
+          items:
+            $ref: "#/components/schemas/AreaList"
+          maxItems: 1
+    AreaList:
+      description: The AreaList represents a geographical area, either as a list of TACs or as an areaCode
+      type: object
+      oneOf:
+        - required:
+            - tacs
+        - required:
+            - areaCodes
+      properties:
+        tacs:
+          $ref: "#/components/schemas/Tacs"
+        areaCodes:
+          $ref: "#/components/schemas/AreaCode"
+    Tacs:
+      description: List of TACs (Tracking Area Codes), shall be present if and only if areaCode is absent
+      type: array
+      items:
+        type: string
+        pattern: "(^[A-Fa-f0-9]{4}$)|(^[A-Fa-f0-9]{6}$)"
+    AreaCode:
+      type: string
